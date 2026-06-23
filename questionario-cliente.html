@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfil de Investidor — Julia Braga Martins</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root {
+    --dark: #1A1A1A; --dark-2: #242424; --mid: #5C5C5C;
+    --light: #DCDCD8; --off: #F0F0EA; --white: #FAFAF8;
+    --neon: #AAFF57; --neon-dk: #5BAA00; --neon-lt: #EEFFD4;
+    --border: #DCDCD8; --text: #1A1A1A; --muted: #888888;
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--off); min-height:100vh; }
+
+  .header { background: var(--dark); padding: 20px 32px; display:flex; justify-content:space-between; align-items:center; }
+  .brand-name { color: var(--neon); font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+  .brand-sub { color: var(--muted); font-size:11px; margin-top:3px; }
+  .step-counter { color: var(--muted); font-size:12px; }
+  .step-counter span { color: var(--neon); font-weight:700; }
+
+  .progress { height:3px; background:#2A2A2A; }
+  .progress-fill { height:100%; background:var(--neon); transition:width .4s ease; }
+
+  .container { max-width:660px; margin:0 auto; padding:40px 20px 80px; }
+
+  .step { display:none; animation: up .25s ease; }
+  .step.active { display:block; }
+  @keyframes up { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+  .step-tag { display:inline-block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--neon-dk); background:var(--neon-lt); padding:3px 10px; border-radius:20px; margin-bottom:14px; }
+  .step-title { font-size:26px; font-weight:700; color:var(--dark); letter-spacing:-.02em; margin-bottom:6px; }
+  .step-desc { font-size:14px; color:var(--mid); line-height:1.6; margin-bottom:32px; }
+
+  .q { margin-bottom:28px; }
+  .q-label { font-size:14px; font-weight:600; color:var(--dark); display:block; margin-bottom:4px; }
+  .q-sub { font-size:12px; color:var(--muted); display:block; margin-bottom:12px; font-weight:400; }
+
+  .opts { display:flex; flex-direction:column; gap:8px; }
+  .opts.g2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+
+  .opt {
+    background:var(--white); border:1.5px solid var(--border); border-radius:10px;
+    padding:13px 16px; cursor:pointer; transition:all .15s;
+    display:flex; align-items:center; gap:12px; user-select:none;
+  }
+  .opt:hover { border-color:var(--neon); background:#F6FFF0; }
+  .opt.sel { border-color:var(--neon); background:#F0FFE4; }
+  .opt.sel .dot { background:var(--neon); border-color:var(--neon); }
+  .opt.sel .dot::after { display:block; }
+
+  .dot {
+    width:18px; height:18px; border-radius:50%; border:2px solid var(--light);
+    flex-shrink:0; position:relative; transition:all .15s;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .dot::after { content:''; display:none; width:8px; height:8px; background:var(--dark); border-radius:50%; }
+
+  .multi .dot { border-radius:4px; }
+  .multi.sel .dot::after { content:'✓'; width:auto; height:auto; background:none; border-radius:0; font-size:11px; font-weight:800; color:var(--dark); }
+
+  .opt-text strong { display:block; font-size:13px; font-weight:600; color:var(--dark); }
+  .opt-text small { font-size:11px; color:var(--muted); line-height:1.4; margin-top:1px; display:block; }
+  .opt-text span { font-size:13px; color:var(--dark); }
+
+  input[type=text], textarea {
+    width:100%; padding:12px 16px; font-size:14px; background:var(--white);
+    border:1.5px solid var(--border); border-radius:10px; outline:none;
+    color:var(--dark); font-family:inherit; transition:border-color .15s; resize:vertical;
+  }
+  input[type=text]:focus, textarea:focus { border-color:var(--neon); }
+  input::placeholder, textarea::placeholder { color:#BBBBBB; }
+
+  .nav { display:flex; justify-content:space-between; align-items:center; margin-top:40px; }
+  .btn-back { background:none; border:1.5px solid var(--border); border-radius:8px; padding:12px 20px; font-size:13px; font-weight:600; color:var(--mid); cursor:pointer; font-family:inherit; transition:all .15s; }
+  .btn-back:hover { border-color:#999; color:var(--dark); }
+  .btn-next { background:var(--neon); border:none; border-radius:8px; padding:12px 28px; font-size:13px; font-weight:700; color:var(--dark); cursor:pointer; font-family:inherit; letter-spacing:.02em; transition:all .15s; }
+  .btn-next:hover { background:#99EE44; }
+
+  .res-header { background:var(--dark); border-radius:12px; padding:28px; margin-bottom:16px; }
+  .res-tag { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:8px; }
+  .res-name { font-size:30px; font-weight:700; color:var(--neon); margin-bottom:6px; }
+  .res-desc { font-size:13px; color:#AAAAAA; line-height:1.65; }
+
+  .res-card { background:var(--white); border:1px solid var(--border); border-radius:12px; padding:22px 24px; margin-bottom:14px; }
+  .res-card-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--mid); margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+  .res-row { display:flex; justify-content:space-between; align-items:flex-start; padding:8px 0; border-bottom:1px solid #EDEDEA; font-size:13px; gap:16px; }
+  .res-row:last-child { border-bottom:none; }
+  .res-key { color:var(--mid); flex-shrink:0; }
+  .res-val { font-weight:600; color:var(--dark); text-align:right; }
+
+  .copy-btn { width:100%; background:var(--dark); color:var(--neon); border:none; border-radius:8px; padding:14px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; letter-spacing:.04em; transition:all .15s; }
+  .copy-btn:hover { background:#2A2A2A; }
+
+  .info-box { margin-top:16px; padding:14px 18px; background:var(--neon-lt); border:1px solid #BBEEA0; border-radius:10px; font-size:12px; color:var(--neon-dk); line-height:1.6; }
+
+  .wpp-btn { width:100%; background:#25D366; color:#FFF; border:none; border-radius:8px; padding:14px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; letter-spacing:.04em; transition:all .15s; margin-top:10px; display:flex; align-items:center; justify-content:center; gap:8px; text-decoration:none; }
+  .wpp-btn:hover { background:#1FBE5A; }
+  .wpp-btn svg { width:18px; height:18px; }
+
+  @media (max-width: 600px) {
+    .header { padding:14px 16px; flex-direction:column; align-items:flex-start; gap:6px; }
+    .brand-name { font-size:11px; }
+    .brand-sub { font-size:10px; }
+    .step-counter { font-size:11px; align-self:flex-end; margin-top:-22px; }
+    .container { padding:24px 14px 60px; }
+    .step-title { font-size:21px; }
+    .step-desc { font-size:13px; margin-bottom:22px; }
+    .step-tag { font-size:9px; padding:3px 8px; }
+    .q { margin-bottom:22px; }
+    .q-label { font-size:13px; }
+    .opts.g2 { grid-template-columns:1fr; }
+    .opt { padding:12px 14px; gap:10px; }
+    .opt-text strong, .opt-text span { font-size:12.5px; }
+    .opt-text small { font-size:10.5px; }
+    .nav { margin-top:28px; gap:10px; }
+    .btn-back { padding:11px 14px; font-size:12px; }
+    .btn-next { padding:11px 18px; font-size:12px; }
+    .res-header { padding:20px 18px; }
+    .res-name { font-size:24px; }
+    .res-desc { font-size:12px; }
+    .res-card { padding:16px 16px; }
+    .res-row { flex-direction:column; align-items:flex-start; gap:3px; padding:9px 0; }
+    .res-key { font-size:11px; text-transform:uppercase; letter-spacing:.05em; font-weight:600; }
+    .res-val { text-align:left; font-size:13px; word-break:break-word; }
+    .copy-btn, .wpp-btn { padding:14px 12px; font-size:12.5px; }
+    .info-box { font-size:11.5px; padding:12px 14px; }
+    input[type=text], textarea { font-size:15px; padding:11px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="brand-name">Julia Braga Martins</div>
+    <div class="brand-sub">Economista · Consultora Financeira</div>
+  </div>
+  <div class="step-counter">Etapa <span id="stepNum">1</span> de 4</div>
+</div>
+<div class="progress"><div class="progress-fill" id="pFill" style="width:25%"></div></div>
+
+<div class="container">
+
+  <!-- ETAPA 1 -->
+  <div class="step active" id="s1">
+    <div class="step-tag">Etapa 1 de 4 · Identificação</div>
+    <div class="step-title">Vamos começar pelo básico</div>
+    <div class="step-desc">Algumas informações para personalizar sua carteira. Leva menos de 5 minutos.</div>
+
+    <div class="q">
+      <label class="q-label">Qual é o seu nome completo?</label>
+      <input type="text" id="q-nome" placeholder="Ex: Maria da Silva">
+    </div>
+
+    <div class="q">
+      <label class="q-label">Qual é a sua faixa de idade?</label>
+      <div class="opts g2">
+        <div class="opt" onclick="sel(this,'q-idade','Menos de 25 anos')"><div class="dot"></div><div class="opt-text"><span>Menos de 25 anos</span></div></div>
+        <div class="opt" onclick="sel(this,'q-idade','25 – 34 anos')"><div class="dot"></div><div class="opt-text"><span>25 – 34 anos</span></div></div>
+        <div class="opt" onclick="sel(this,'q-idade','35 – 44 anos')"><div class="dot"></div><div class="opt-text"><span>35 – 44 anos</span></div></div>
+        <div class="opt" onclick="sel(this,'q-idade','45 – 54 anos')"><div class="dot"></div><div class="opt-text"><span>45 – 54 anos</span></div></div>
+        <div class="opt" onclick="sel(this,'q-idade','55 – 64 anos')"><div class="dot"></div><div class="opt-text"><span>55 – 64 anos</span></div></div>
+        <div class="opt" onclick="sel(this,'q-idade','65 anos ou mais')"><div class="dot"></div><div class="opt-text"><span>65 anos ou mais</span></div></div>
+      </div>
+    </div>
+
+    <div class="q">
+      <label class="q-label">Qual é a sua situação profissional?</label>
+      <div class="opts">
+        <div class="opt" onclick="sel(this,'q-prof','Empregado CLT')"><div class="dot"></div><div class="opt-text"><strong>Empregado CLT</strong><small>Renda fixa mensal com carteira assinada</small></div></div>
+        <div class="opt" onclick="sel(this,'q-prof','Autônomo / Freelancer')"><div class="dot"></div><div class="opt-text"><strong>Autônomo / Freelancer</strong><small>Renda variável, sem vínculo empregatício</small></div></div>
+        <div class="opt" onclick="sel(this,'q-prof','Empresário')"><div class="dot"></div><div class="opt-text"><strong>Empresário / Sócio</strong><small>Tenho empresa própria</small></div></div>
+        <div class="opt" onclick="sel(this,'q-prof','Aposentado / Rentista')"><div class="dot"></div><div class="opt-text"><strong>Aposentado / Rentista</strong><small>Vivo de renda ou aposentadoria</small></div></div>
+        <div class="opt" onclick="sel(this,'q-prof','Estudante')"><div class="dot"></div><div class="opt-text"><strong>Estudante</strong></div></div>
+      </div>
+    </div>
+
+    <div class="nav"><div></div><button class="btn-next" onclick="go(1,2)">Continuar →</button></div>
+  </div>
+
+  <!-- ETAPA 2 -->
+  <div class="step" id="s2">
+    <div class="step-tag">Etapa 2 de 4 · Situação financeira</div>
+    <div class="step-title">Sua situação atual</div>
+    <div class="step-desc">Entender onde você está hoje é essencial para definir a melhor estratégia.</div>
+
+    <div class="q">
+      <label class="q-label">Como você vai investir?</label>
+      <label class="q-sub">Escolha a opção que melhor descreve sua situação atual.</label>
+      <div class="opts">
+        <div class="opt" id="ap-unico" onclick="toggleAporte('unico')"><div class="dot"></div><div class="opt-text"><strong>Tenho um valor inicial (uma única vez)</strong><small>Ex: dinheiro guardado, herança, 13º, venda de algo</small></div></div>
+        <div class="opt" id="ap-mensal" onclick="toggleAporte('mensal')"><div class="dot"></div><div class="opt-text"><strong>Vou aportar todo mês</strong><small>Não tenho valor inicial, mas posso separar um valor mensal</small></div></div>
+        <div class="opt" id="ap-ambos" onclick="toggleAporte('ambos')"><div class="dot"></div><div class="opt-text"><strong>Tenho valor inicial + aportes mensais</strong><small>Comece com um valor e vai aportando regularmente</small></div></div>
+      </div>
+    </div>
+
+    <div class="q" id="q-valor-inicial" style="display:none;">
+      <label class="q-label">Qual o valor inicial?</label>
+      <label class="q-sub">O quanto você tem disponível para investir agora. Pode ser qualquer valor, sem mínimo.</label>
+      <div style="position:relative;">
+        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:14px;font-weight:600;color:#888;pointer-events:none;">R$</span>
+        <input type="text" id="q-valor" placeholder="Ex: 1.000,00 ou 50.000,00" style="padding-left:38px;" oninput="fmtValor(this)">
+      </div>
+    </div>
+
+    <div class="q" id="q-valor-mensal" style="display:none;">
+      <label class="q-label">Quanto você consegue aportar por mês?</label>
+      <label class="q-sub">Seja realista — é melhor um valor menor que você consegue manter do que um valor alto que não dá conta.</label>
+      <div style="position:relative;">
+        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:14px;font-weight:600;color:#888;pointer-events:none;">R$</span>
+        <input type="text" id="q-mensal" placeholder="Ex: 200,00 ou 1.500,00" style="padding-left:38px;padding-right:48px;" oninput="fmtValor(this)">
+        <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;color:#888;pointer-events:none;">/mês</span>
+      </div>
+    </div>
+
+    <div class="q">
+      <label class="q-label">Você já possui outros investimentos?</label>
+      <div class="opts" style="margin-bottom:12px;">
+        <div class="opt" id="inv-nao" onclick="toggleInv('nao')"><div class="dot"></div><div class="opt-text"><span>Não — este será meu primeiro investimento</span></div></div>
+        <div class="opt" id="inv-sim" onclick="toggleInv('sim')"><div class="dot"></div><div class="opt-text"><span>Sim — já tenho investimentos</span></div></div>
+      </div>
+      <div id="inv-tipos" style="display:none;">
+        <label class="q-sub" style="margin-bottom:10px;">Se sim, quais? Selecione todos que tiver:</label>
+        <div class="opts">
+          <div class="opt multi" onclick="multi(this,'q-atual','Poupança')"><div class="dot"></div><div class="opt-text"><span>Poupança</span></div></div>
+          <div class="opt multi" onclick="multi(this,'q-atual','CDB')"><div class="dot"></div><div class="opt-text"><span>CDB (Certificado de Depósito Bancário)</span></div></div>
+          <div class="opt multi" onclick="multi(this,'q-atual','LCI / LCA')"><div class="dot"></div><div class="opt-text"><span>LCI / LCA (Letras de Crédito)</span></div></div>
+          <div class="opt multi" onclick="multi(this,'q-atual','Tesouro Direto')"><div class="dot"></div><div class="opt-text"><span>Tesouro Direto</span></div></div>
+          <div class="opt multi" onclick="multi(this,'q-atual','Fundos de investimento')"><div class="dot"></div><div class="opt-text"><span>Fundos de investimento</span></div></div>
+          <div class="opt multi" onclick="multi(this,'q-atual','FIIs (Fundos Imobiliários)')"><div class="dot"></div><div class="opt-text"><span>FIIs (Fundos Imobiliários)</span></div></div>
+          <div class="opt multi" onclick="multi(this,'q-atual','Ações')"><div class="dot"></div><div class="opt-text"><span>Ações (bolsa de valores)</span></div></div>
+          <div class="opt multi" onclick="multi(this,'q-atual','ETFs')"><div class="dot"></div><div class="opt-text"><span>ETFs (fundos de índice)</span></div></div>
+          <div class="opt multi" onclick="multi(this,'q-atual','Previdência privada')"><div class="dot"></div><div class="opt-text"><span>Previdência privada (PGBL ou VGBL)</span></div></div>
+          <div class="opt multi" onclick="multi(this,'q-atual','Criptomoedas')"><div class="dot"></div><div class="opt-text"><span>Criptomoedas (Bitcoin, Ethereum, etc.)</span></div></div>
+          <div class="opt multi" onclick="multi(this,'q-atual','Ativos internacionais / BDRs')"><div class="dot"></div><div class="opt-text"><span>Ativos internacionais / BDRs</span></div></div>
+          <div class="opt multi" onclick="multi(this,'q-atual','Imóveis')"><div class="dot"></div><div class="opt-text"><span>Imóveis (para investimento ou aluguel)</span></div></div>
+          <div class="opt multi" onclick="multi(this,'q-atual','Debêntures')"><div class="dot"></div><div class="opt-text"><span>Debêntures (títulos de dívida de empresas)</span></div></div>
+          <div class="opt multi" onclick="multi(this,'q-atual','CRI / CRA')"><div class="dot"></div><div class="opt-text"><span>CRI / CRA (Certificados de Recebíveis)</span></div></div>
+          <div class="opt multi" onclick="multi(this,'q-atual','COE')"><div class="dot"></div><div class="opt-text"><span>COE (Certificado de Operações Estruturadas)</span></div></div>
+          <div class="opt multi" onclick="multi(this,'q-atual','Ativos tokenizados')"><div class="dot"></div><div class="opt-text"><span>Ativos tokenizados (CRI/CRA/debêntures em blockchain)</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="q">
+      <label class="q-label">Como você faz a declaração do Imposto de Renda?</label>
+      <label class="q-sub">Isso define se o PGBL (previdência com dedução fiscal) faz sentido para você.</label>
+      <div class="opts">
+        <div class="opt" onclick="sel(this,'q-ir','Declaração completa')"><div class="dot"></div><div class="opt-text"><strong>Declaração completa</strong><small>Deduço despesas: médico, escola, dependentes...</small></div></div>
+        <div class="opt" onclick="sel(this,'q-ir','Declaração simplificada')"><div class="dot"></div><div class="opt-text"><strong>Declaração simplificada</strong><small>Uso o desconto padrão de 20%</small></div></div>
+        <div class="opt" onclick="sel(this,'q-ir','Não declaro / Não sei')"><div class="dot"></div><div class="opt-text"><strong>Não declaro / Não sei</strong></div></div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="btn-back" onclick="go(2,1)">← Voltar</button>
+      <button class="btn-next" onclick="go(2,3)">Continuar →</button>
+    </div>
+  </div>
+
+  <!-- ETAPA 3 -->
+  <div class="step" id="s3">
+    <div class="step-tag">Etapa 3 de 4 · Objetivos</div>
+    <div class="step-title">O que você quer alcançar?</div>
+    <div class="step-desc">Seus objetivos definem o prazo e a estratégia ideal para o seu dinheiro.</div>
+
+    <div class="q">
+      <label class="q-label">Qual é o seu principal objetivo com este investimento?</label>
+      <div class="opts">
+        <div class="opt" onclick="sel(this,'q-obj','Preservar o patrimônio com segurança')"><div class="dot"></div><div class="opt-text"><strong>Preservar o patrimônio</strong><small>Segurança acima de tudo, mesmo com rendimento menor</small></div></div>
+        <div class="opt" onclick="sel(this,'q-obj','Crescer o patrimônio de forma equilibrada')"><div class="dot"></div><div class="opt-text"><strong>Crescer de forma equilibrada</strong><small>Rendimento acima da inflação sem grandes riscos</small></div></div>
+        <div class="opt" onclick="sel(this,'q-obj','Gerar renda mensal')"><div class="dot"></div><div class="opt-text"><strong>Gerar renda mensal</strong><small>Quero receber dividendos ou juros todo mês</small></div></div>
+        <div class="opt" onclick="sel(this,'q-obj','Planejamento para aposentadoria')"><div class="dot"></div><div class="opt-text"><strong>Aposentadoria</strong><small>Construir patrimônio para o longo prazo</small></div></div>
+        <div class="opt" onclick="sel(this,'q-obj','Comprar um bem ou imóvel em breve')"><div class="dot"></div><div class="opt-text"><strong>Meta específica</strong><small>Comprar um bem, imóvel ou realizar um projeto</small></div></div>
+        <div class="opt" onclick="sel(this,'q-obj','Maximizar retorno aceitando mais risco')"><div class="dot"></div><div class="opt-text"><strong>Maximizar retorno</strong><small>Aceito mais risco em busca de maior rentabilidade</small></div></div>
+      </div>
+    </div>
+
+    <div class="q">
+      <label class="q-label">Em quanto tempo você pode precisar deste dinheiro?</label>
+      <div class="opts">
+        <div class="opt" onclick="sel(this,'q-prazo','Menos de 1 ano')"><div class="dot"></div><div class="opt-text"><strong>Menos de 1 ano</strong><small>Preciso manter alta liquidez</small></div></div>
+        <div class="opt" onclick="sel(this,'q-prazo','1 a 3 anos')"><div class="dot"></div><div class="opt-text"><strong>1 a 3 anos</strong><small>Médio prazo com alguma flexibilidade</small></div></div>
+        <div class="opt" onclick="sel(this,'q-prazo','3 a 5 anos')"><div class="dot"></div><div class="opt-text"><strong>3 a 5 anos</strong></div></div>
+        <div class="opt" onclick="sel(this,'q-prazo','5 a 10 anos')"><div class="dot"></div><div class="opt-text"><strong>5 a 10 anos</strong></div></div>
+        <div class="opt" onclick="sel(this,'q-prazo','Mais de 10 anos — posso deixar investido')"><div class="dot"></div><div class="opt-text"><strong>Mais de 10 anos</strong><small>Posso deixar o dinheiro investido por muito tempo</small></div></div>
+      </div>
+    </div>
+
+    <div class="q">
+      <label class="q-label">Você já tem uma reserva de emergência separada?</label>
+      <label class="q-sub">Reserva ideal: 6 meses de despesas mensais em aplicação com liquidez diária.</label>
+      <div class="opts">
+        <div class="opt" onclick="sel(this,'q-res','Sim, já tenho reserva separada')"><div class="dot"></div><div class="opt-text"><span>Sim — tenho reserva de emergência separada</span></div></div>
+        <div class="opt" onclick="sel(this,'q-res','Não, preciso incluir a reserva aqui')"><div class="dot"></div><div class="opt-text"><span>Não — preciso incluir a reserva neste investimento</span></div></div>
+        <div class="opt" onclick="sel(this,'q-res','Reserva parcial — poderia ser maior')"><div class="dot"></div><div class="opt-text"><span>Tenho reserva parcial, mas poderia ser maior</span></div></div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="btn-back" onclick="go(3,2)">← Voltar</button>
+      <button class="btn-next" onclick="go(3,4)">Continuar →</button>
+    </div>
+  </div>
+
+  <!-- ETAPA 4 -->
+  <div class="step" id="s4">
+    <div class="step-tag">Etapa 4 de 4 · Perfil de risco</div>
+    <div class="step-title">Sua relação com risco</div>
+    <div class="step-desc">Não existe resposta certa. Queremos entender como você realmente se sente em cada situação.</div>
+
+    <div class="q">
+      <label class="q-label">Cenário: você investiu R$ 10.000 e, após um mês difícil no mercado, seu saldo caiu para R$ 8.000. O que você faria?</label>
+      <label class="q-sub">Uma queda de R$ 2.000 em um mês — o que é sua reação natural?</label>
+      <div class="opts">
+        <div class="opt" onclick="sel(this,'q-r1','Venderia tudo para preservar o restante')"><div class="dot"></div><div class="opt-text"><strong>Sacaria tudo imediatamente</strong><small>Prefiro garantir os R$ 8.000 do que arriscar perder mais</small></div></div>
+        <div class="opt" onclick="sel(this,'q-r1','Ficaria preocupado, mas aguardaria recuperar')"><div class="dot"></div><div class="opt-text"><strong>Ficaria nervoso, mas esperaria</strong><small>Ver R$ 2.000 "sumindo" me preocuparia muito, mas aguardaria a recuperação</small></div></div>
+        <div class="opt" onclick="sel(this,'q-r1','Manteria sem preocupação — faz parte')"><div class="dot"></div><div class="opt-text"><strong>Manteria sem grande preocupação</strong><small>Sei que mercado oscila — R$ 8.000 de hoje pode ser R$ 12.000 amanhã</small></div></div>
+        <div class="opt" onclick="sel(this,'q-r1','Aproveitaria para investir mais')"><div class="dot"></div><div class="opt-text"><strong>Colocaria mais dinheiro</strong><small>Queda é desconto — aproveitaria para comprar mais barato</small></div></div>
+      </div>
+    </div>
+
+    <div class="q">
+      <label class="q-label">Qual é a sua experiência com investimentos?</label>
+      <div class="opts">
+        <div class="opt" onclick="sel(this,'q-exp','Iniciante — ainda estou aprendendo')"><div class="dot"></div><div class="opt-text"><strong>Iniciante</strong><small>Ainda estou aprendendo sobre o tema</small></div></div>
+        <div class="opt" onclick="sel(this,'q-exp','Básico — conheço poupança e CDB')"><div class="dot"></div><div class="opt-text"><strong>Básico</strong><small>Já tive poupança, CDB ou Tesouro Direto</small></div></div>
+        <div class="opt" onclick="sel(this,'q-exp','Intermediário — renda fixa e fundos')"><div class="dot"></div><div class="opt-text"><strong>Intermediário</strong><small>Invisto em renda fixa, fundos e conheço o mercado</small></div></div>
+        <div class="opt" onclick="sel(this,'q-exp','Avançado — ações, FIIs, renda variável')"><div class="dot"></div><div class="opt-text"><strong>Avançado</strong><small>Invisto em ações, FIIs, derivativos ou ativos internacionais</small></div></div>
+      </div>
+    </div>
+
+    <div class="q">
+      <label class="q-label">Você tem alguma preferência ou restrição?</label>
+      <label class="q-sub">Pode selecionar mais de uma opção.</label>
+      <div class="opts">
+        <div class="opt multi" onclick="multi(this,'q-pref','Prefiro produtos com FGC (até R$250k por banco)')"><div class="dot"></div><div class="opt-text"><span>Prefiro produtos com garantia do FGC (até R$250k por banco)</span></div></div>
+        <div class="opt multi" onclick="multi(this,'q-pref','Preciso de liquidez diária em parte do valor')"><div class="dot"></div><div class="opt-text"><span>Preciso de liquidez diária em parte do investimento</span></div></div>
+        <div class="opt multi" onclick="multi(this,'q-pref','Tenho interesse em ativos inovadores (tokenizados, ETFs)')"><div class="dot"></div><div class="opt-text"><span>Tenho interesse em ativos inovadores (tokenizados, ETFs, BDRs)</span></div></div>
+        <div class="opt multi" onclick="multi(this,'q-pref','Não quero renda variável na carteira')"><div class="dot"></div><div class="opt-text"><span>Não quero exposição a renda variável (ações, FIIs)</span></div></div>
+        <div class="opt multi" onclick="multi(this,'q-pref','Sem preferências específicas')"><div class="dot"></div><div class="opt-text"><span>Sem preferências específicas</span></div></div>
+      </div>
+    </div>
+
+    <div class="q">
+      <label class="q-label">Alguma observação adicional?</label>
+      <label class="q-sub">Opcional — dívidas ativas, metas próximas, valores já reservados, situações especiais...</label>
+      <textarea id="q-obs" rows="3" placeholder="Ex: Vou comprar um carro em 2 anos. Tenho R$20k em poupança que não entram aqui. Estou pensando em mudar de emprego..."></textarea>
+    </div>
+
+    <div class="nav">
+      <button class="btn-back" onclick="go(4,3)">← Voltar</button>
+      <button class="btn-next" onclick="result()">Ver meu perfil →</button>
+    </div>
+  </div>
+
+  <!-- RESULTADO -->
+  <div class="step" id="s5">
+    <div class="step-tag">Resultado</div>
+    <div class="step-title">Seu perfil de investidor</div>
+    <div class="step-desc">Com base nas suas respostas, identificamos o perfil mais adequado.</div>
+
+    <div class="res-header">
+      <div class="res-tag">Perfil identificado</div>
+      <div class="res-name" id="rName"></div>
+      <div class="res-desc" id="rDesc"></div>
+    </div>
+
+    <div class="res-card">
+      <div class="res-card-title">Resumo das respostas</div>
+      <div id="rRows"></div>
+    </div>
+
+    <a href="#" class="wpp-btn" id="wppBtn" onclick="enviarWpp(event)">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+      Enviar resumo para a Julia pelo WhatsApp
+    </a>
+    <button class="copy-btn" id="copyBtn" onclick="copy()" style="margin-top:10px;">Ou copiar resumo</button>
+
+    <div class="info-box">
+      <strong>Próximo passo:</strong> Clique no botão verde para abrir a conversa com a Julia já com o resumo pronto. Ela irá preparar sua carteira personalizada com base nessas informações.
+    </div>
+  </div>
+
+</div>
+
+<script>
+const ans = {}, multi_ans = {};
+let invTem = false;
+
+function sel(el, key, val) {
+  el.closest('.opts').querySelectorAll('.opt').forEach(o => o.classList.remove('sel'));
+  el.classList.add('sel');
+  ans[key] = val;
+}
+
+function multi(el, key, val) {
+  el.classList.toggle('sel');
+  if (!multi_ans[key]) multi_ans[key] = [];
+  const i = multi_ans[key].indexOf(val);
+  if (i === -1) multi_ans[key].push(val);
+  else multi_ans[key].splice(i, 1);
+}
+
+function toggleAporte(tipo) {
+  ['unico','mensal','ambos'].forEach(t => document.getElementById('ap-'+t).classList.toggle('sel', t === tipo));
+  const showInicial = tipo === 'unico' || tipo === 'ambos';
+  const showMensal  = tipo === 'mensal' || tipo === 'ambos';
+  document.getElementById('q-valor-inicial').style.display = showInicial ? 'block' : 'none';
+  document.getElementById('q-valor-mensal').style.display  = showMensal  ? 'block' : 'none';
+  if (!showInicial) document.getElementById('q-valor').value = '';
+  if (!showMensal)  document.getElementById('q-mensal').value = '';
+  ans['q-tipo-aporte'] = tipo === 'unico' ? 'Valor único' : tipo === 'mensal' ? 'Aportes mensais' : 'Valor inicial + aportes mensais';
+}
+
+function toggleInv(val) {
+  invTem = val === 'sim';
+  document.getElementById('inv-sim').classList.toggle('sel', invTem);
+  document.getElementById('inv-nao').classList.toggle('sel', !invTem);
+  document.getElementById('inv-tipos').style.display = invTem ? 'block' : 'none';
+  ans['q-inv-base'] = invTem ? 'Sim' : 'Não';
+  if (!invTem) multi_ans['q-atual'] = [];
+}
+
+function fmtValor(el) {
+  let v = el.value.replace(/\D/g, '');
+  if (!v) { el.value = ''; return; }
+  v = (parseInt(v) / 100).toFixed(2);
+  el.value = parseFloat(v).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+}
+
+function go(from, to) {
+  document.getElementById('s' + from).classList.remove('active');
+  document.getElementById('s' + to).classList.add('active');
+  document.getElementById('stepNum').textContent = to > 4 ? '✓' : to;
+  document.getElementById('pFill').style.width = (to * 25) + '%';
+  window.scrollTo(0, 0);
+}
+
+function getValor() {
+  const ini = document.getElementById('q-valor').value;
+  const men = document.getElementById('q-mensal').value;
+  const partes = [];
+  if (ini) partes.push('R$ ' + ini + ' inicial');
+  if (men) partes.push('R$ ' + men + '/mês');
+  return partes.length ? partes.join(' + ') : '—';
+}
+
+function getInvestimentos() {
+  if (!invTem) return 'Não possui investimentos';
+  const tipos = multi_ans['q-atual'] || [];
+  return tipos.length ? tipos.join(', ') : 'Sim (tipos não especificados)';
+}
+
+function profile() {
+  let s = 0;
+  const r1 = ans['q-r1'] || '', obj = ans['q-obj'] || '', pr = ans['q-prazo'] || '', exp = ans['q-exp'] || '';
+  const pref = multi_ans['q-pref'] || [];
+  if (r1.includes('Sacaria')) s += 0;
+  else if (r1.includes('nervoso')) s += 1;
+  else if (r1.includes('grande preocupação')) s += 2;
+  else if (r1.includes('mais dinheiro')) s += 3;
+  if (obj.includes('Preservar')) s += 0;
+  else if (obj.includes('equilibrada') || obj.includes('renda mensal')) s += 1;
+  else if (obj.includes('aposentadoria') || obj.includes('Meta')) s += 2;
+  else if (obj.includes('Maximizar')) s += 3;
+  if (pr.includes('1 ano')) s += 0;
+  else if (pr.includes('1 a 3')) s += 1;
+  else if (pr.includes('3 a 5')) s += 2;
+  else if (pr.includes('5 a 10')) s += 2;
+  else if (pr.includes('10')) s += 3;
+  if (exp.includes('Iniciante')) s += 0;
+  else if (exp.includes('Básico')) s += 1;
+  else if (exp.includes('Intermediário')) s += 2;
+  else if (exp.includes('Avançado')) s += 3;
+  if (pref.includes('Não quero renda variável na carteira')) s -= 2;
+  if (pref.includes('Prefiro produtos com FGC (até R$250k por banco)')) s -= 1;
+  if (s <= 2) return { name: 'Conservador', desc: 'Você prioriza a segurança do capital. Prefere estabilidade e previsibilidade, mesmo que isso signifique retornos mais modestos. Liquidez e proteção são fundamentais para você.' };
+  if (s <= 5) return { name: 'Moderado', desc: 'Você busca equilíbrio entre segurança e crescimento. Aceita alguma volatilidade no curto prazo em troca de retornos superiores à inflação no médio e longo prazo.' };
+  if (s <= 8) return { name: 'Moderado-Arrojado', desc: 'Você tem boa tolerância ao risco e busca rentabilidade acima da média. Aceita oscilações temporárias com foco no crescimento patrimonial de longo prazo.' };
+  return { name: 'Arrojado', desc: 'Você tem alta tolerância ao risco e prioriza crescimento patrimonial. Entende que volatilidade é parte do processo e busca os melhores retornos no longo prazo.' };
+}
+
+function result() {
+  const p = profile();
+  document.getElementById('rName').textContent = p.name;
+  document.getElementById('rDesc').textContent = p.desc;
+  const nome = document.getElementById('q-nome').value || 'Não informado';
+  const obs = document.getElementById('q-obs').value || '—';
+  const pref = (multi_ans['q-pref'] || []).join(' · ') || 'Sem preferências específicas';
+  const rows = [
+    ['Nome', nome], ['Faixa de idade', ans['q-idade'] || '—'], ['Situação profissional', ans['q-prof'] || '—'],
+    ['Tipo de aporte', ans['q-tipo-aporte'] || '—'], ['Valor a investir', getValor()], ['Investimentos atuais', getInvestimentos()],
+    ['Declaração de IR', ans['q-ir'] || '—'], ['Objetivo principal', ans['q-obj'] || '—'],
+    ['Horizonte de tempo', ans['q-prazo'] || '—'], ['Reserva de emergência', ans['q-res'] || '—'],
+    ['Reação a queda (cenário R$10k→R$8k)', ans['q-r1'] || '—'], ['Experiência', ans['q-exp'] || '—'],
+    ['Preferências / restrições', pref], ['Observações', obs], ['Perfil identificado', p.name],
+  ];
+  document.getElementById('rRows').innerHTML = rows.map(([k,v]) =>
+    `<div class="res-row"><span class="res-key">${k}</span><span class="res-val">${v}</span></div>`
+  ).join('');
+  go(4, 5);
+}
+
+const WPP_NUM = '5511964414000';
+
+function buildResumo() {
+  const p = profile();
+  const nome = document.getElementById('q-nome').value || 'Não informado';
+  const obs = document.getElementById('q-obs').value || '—';
+  const pref = (multi_ans['q-pref'] || []).join(', ') || 'Sem preferências específicas';
+  return `*QUESTIONÁRIO DE PERFIL DE INVESTIDOR*
+Data: ${new Date().toLocaleDateString('pt-BR')}
+Perfil identificado: *${p.name}*
+
+Nome: ${nome}
+Idade: ${ans['q-idade'] || '—'}
+Situação profissional: ${ans['q-prof'] || '—'}
+Tipo de aporte: ${ans['q-tipo-aporte'] || '—'}
+Valor a investir: ${getValor()}
+Investimentos atuais: ${getInvestimentos()}
+Declaração de IR: ${ans['q-ir'] || '—'}
+Objetivo principal: ${ans['q-obj'] || '—'}
+Horizonte de tempo: ${ans['q-prazo'] || '—'}
+Reserva de emergência: ${ans['q-res'] || '—'}
+Reação ao cenário de queda: ${ans['q-r1'] || '—'}
+Experiência: ${ans['q-exp'] || '—'}
+Preferências / restrições: ${pref}
+Observações: ${obs}
+
+Olá Julia! Acabei de preencher o questionário e gostaria de receber minha carteira personalizada. 🚀`;
+}
+
+function copy() {
+  navigator.clipboard.writeText(buildResumo()).then(() => {
+    const b = document.getElementById('copyBtn');
+    b.textContent = '✓ Copiado com sucesso!';
+    setTimeout(() => { b.textContent = 'Ou copiar resumo'; }, 3000);
+  });
+}
+
+function enviarWpp(e) {
+  e.preventDefault();
+  const txt = encodeURIComponent(buildResumo());
+  window.open(`https://wa.me/${WPP_NUM}?text=${txt}`, '_blank');
+}
+</script>
+</body>
+</html>

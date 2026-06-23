@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório de Carteira — Julia Braga Martins</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg-page: #111111;
+    --bg-card: #1A1A1A;
+    --bg-card-2: #1E1E1E;
+    --bg-header: #0D0D0D;
+    --bg-mid: #222222;
+    --text-primary: #E8E8E4;
+    --text-secondary: #AAAAAA;
+    --text-muted: #777777;
+    --accent: #AAFF57;
+    --accent-mid: #88DD33;
+    --border: #2A2A2A;
+    --border-light: #333333;
+    --green-soft: rgba(170,255,87,0.12);
+    --green-text: #AAFF57;
+    --amber-soft: rgba(255,204,34,0.12);
+    --amber-text: #FFCC22;
+    --red-soft: rgba(255,102,170,0.12);
+    --red-text: #FF66AA;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-size: 13px;
+    line-height: 1.6;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .header { background: var(--bg-header); color: var(--text-primary); padding: 40px 52px 36px; border-bottom: 1px solid var(--border); }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; }
+  .brand-name { font-size: 12px; font-weight: 600; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 4px; }
+  .brand-sub { font-size: 11px; color: var(--text-muted); }
+  .report-meta { text-align: right; }
+  .report-date { font-size: 13px; color: var(--text-primary); font-weight: 500; margin-bottom: 2px; }
+  .report-conf { font-size: 11px; color: var(--text-muted); }
+  .header-title { font-size: 36px; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 6px; line-height: 1.1; }
+  .header-accent { color: var(--accent); }
+  .header-subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 32px; }
+  .divider-line { width: 48px; height: 2px; background: var(--accent); margin-bottom: 32px; }
+  .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .metric-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; }
+  .metric-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.09em; color: var(--text-muted); margin-bottom: 8px; }
+  .metric-value { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+  .metric-value.green { color: var(--accent); }
+  .metric-value.sm { font-size: 17px; }
+
+  .body { padding: 36px 52px 40px; }
+  .section { margin-bottom: 36px; }
+  .section-title {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--text-secondary); margin-bottom: 14px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::before { content:''; display:inline-block; width:3px; height:12px; background:var(--accent); border-radius:2px; }
+
+  /* PROFILE CARD */
+  .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .profile-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+  .profile-item-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin-bottom: 4px; }
+  .profile-item-value { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .profile-highlight {
+    background: var(--green-soft); border: 1px solid rgba(170,255,87,0.25); border-radius: 10px;
+    padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 14px;
+  }
+  .profile-highlight-icon { font-size: 24px; }
+  .profile-highlight-text { font-size: 13px; color: var(--text-primary); line-height: 1.6; }
+  .profile-highlight-text strong { color: var(--accent); }
+
+  /* ALERT */
+  .alert-box {
+    background: var(--red-soft); border: 1px solid rgba(255,102,170,0.25); border-radius: 10px;
+    padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 14px;
+  }
+  .alert-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .alert-text { font-size: 13px; color: var(--text-primary); line-height: 1.6; }
+  .alert-text strong { color: var(--red-text); }
+
+  /* CHART CARDS */
+  .chart-card { background: var(--bg-card-2); border: 1px solid var(--border); border-radius: 12px; padding: 22px 24px; }
+  .chart-card-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .charts-grid { display: grid; grid-template-columns: 300px 1fr; gap: 16px; }
+
+  .legend { display: flex; flex-direction: column; gap: 7px; margin-top: 14px; }
+  .legend-item { display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
+  .legend-left { display: flex; align-items: center; gap: 8px; }
+  .legend-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+  .legend-name { color: #CCCCCC; }
+  .legend-right { display: flex; gap: 14px; }
+  .legend-pct { font-weight: 700; color: #EEEEEE; min-width: 32px; text-align: right; }
+  .legend-val { color: var(--text-muted); min-width: 48px; text-align: right; }
+
+  /* TOOLTIP */
+  .tip-wrap { position: relative; display: inline; cursor: help; border-bottom: 1px dotted var(--accent); }
+  .tip-box {
+    display: none; position: absolute; bottom: calc(100% + 10px); left: 0;
+    background: #0A0A0A; color: #E0E0E0; border: 1px solid #3A3A3A;
+    border-radius: 10px; padding: 14px 16px; width: 320px; font-size: 12px;
+    line-height: 1.6; z-index: 1000; box-shadow: 0 8px 28px rgba(0,0,0,.7);
+    pointer-events: none;
+  }
+  .tip-box strong { color: var(--accent); }
+  .tip-wrap:hover .tip-box { display: block; }
+  .tip-flip .tip-box { bottom: auto; top: calc(100% + 10px); }
+
+  /* ASSET TABLE */
+  .table-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; }
+  .asset-table { width: 100%; border-collapse: collapse; }
+  .asset-table th {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-secondary); text-align: left; padding: 10px 14px;
+    background: var(--bg-mid); border-bottom: 1px solid var(--border);
+  }
+  .asset-table th:first-child { border-radius: 12px 0 0 0; }
+  .asset-table th:last-child { border-radius: 0 12px 0 0; }
+  .asset-table th:not(:first-child) { text-align: right; }
+  .asset-table td { padding: 14px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .asset-table tr:last-child td { border-bottom: none; }
+  .asset-table tr:hover td { background: rgba(170,255,87,0.03); }
+  .asset-name { font-weight: 600; font-size: 13px; color: var(--text-primary); }
+  .asset-desc { font-size: 11px; color: var(--text-secondary); margin-top: 3px; }
+  .td-right { text-align: right; }
+  .badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 20px; }
+  .badge-isento { background: var(--green-soft); color: var(--green-text); }
+  .badge-ir { background: var(--amber-soft); color: var(--amber-text); }
+  .net-return { font-weight: 700; color: var(--accent); font-size: 14px; }
+  .table-footer {
+    padding: 10px 14px; background: var(--bg-mid); border-top: 1px solid var(--border);
+    font-size: 10px; color: var(--text-muted); font-style: italic;
+    border-radius: 0 0 12px 12px;
+  }
+
+  /* EXPANDABLE */
+  .exp-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .exp-item { border-bottom: 1px solid var(--border); }
+  .exp-item:last-child { border-bottom: none; }
+  .exp-header {
+    display: flex; align-items: center; gap: 12px; padding: 14px 20px;
+    cursor: pointer; user-select: none; transition: background .15s;
+  }
+  .exp-header:hover { background: rgba(170,255,87,0.04); }
+  .exp-arrow { font-size: 11px; color: var(--text-muted); transition: transform .25s; flex-shrink: 0; }
+  .exp-item.open .exp-arrow { transform: rotate(90deg); }
+  .exp-body {
+    max-height: 0; overflow: hidden;
+    transition: max-height .35s ease, padding .35s ease;
+    padding: 0 20px;
+    font-size: 12px; color: var(--text-secondary); line-height: 1.7;
+  }
+  .exp-item.open .exp-body { max-height: 350px; padding: 0 20px 18px; }
+  .exp-source { margin-top: 8px; font-size: 11px; }
+  .exp-source a { color: var(--accent); text-decoration: none; }
+  .exp-source a:hover { text-decoration: underline; }
+  .hi { color: var(--accent); font-weight: 600; }
+
+  .risk-head { display: grid; grid-template-columns: 2fr 1fr 1fr 2fr; gap: 0; background: var(--bg-mid); border-bottom: 1px solid var(--border); }
+  .risk-head div { padding: 10px 14px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-secondary); }
+  .risk-med { color: var(--amber-text); font-weight: 600; }
+  .risk-low { color: var(--accent); font-weight: 600; }
+
+  /* TRIGGERS */
+  .triggers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .trigger {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 8px; padding: 14px 16px;
+  }
+  .trigger-condition { font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+  .trigger-action { font-size: 11px; color: var(--text-secondary); line-height: 1.5; }
+  .revision-box {
+    margin-top: 12px; padding: 14px 18px; background: var(--bg-card);
+    border: 1px solid var(--accent); border-radius: 8px; color: var(--text-primary); font-size: 12px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .revision-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+  /* ONDE COMPRAR */
+  .buy-grid { display: flex; flex-direction: column; gap: 8px; }
+  .buy-row {
+    display: grid; grid-template-columns: 200px 1fr; gap: 0;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden;
+  }
+  .buy-product {
+    padding: 12px 16px; display: flex; align-items: center; gap: 10px;
+    border-right: 1px solid var(--border); background: var(--bg-mid);
+  }
+  .buy-product-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+  .buy-product-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+  .buy-platforms { padding: 12px 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .buy-plat { font-size: 11px; padding: 4px 10px; border-radius: 6px; font-weight: 600; }
+  .buy-plat-1 { background: var(--accent); color: #111; }
+  .buy-plat-2 { background: #2A2A2A; color: #CCC; border: 1px solid #3A3A3A; }
+  .buy-plat-3 { background: #2A2A2A; color: #999; border: 1px solid #333; }
+  .buy-note {
+    margin-top: 12px; padding: 14px 18px; background: var(--amber-soft);
+    border: 1px solid rgba(255,204,34,0.25); border-radius: 10px;
+    font-size: 12px; color: var(--amber-text); line-height: 1.5;
+  }
+
+  /* REFS */
+  .refs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .ref-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .ref-source { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin-bottom: 4px; }
+  .ref-link { font-size: 12px; }
+  .ref-link a { color: var(--accent); text-decoration: none; }
+  .ref-link a:hover { text-decoration: underline; }
+  .ref-desc { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+  .footer {
+    background: var(--bg-header); color: var(--text-muted); padding: 22px 52px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11px; gap: 24px; border-top: 1px solid var(--border);
+  }
+  .footer-brand { color: var(--accent); font-weight: 600; font-size: 12px; margin-bottom: 3px; }
+  .footer-right { text-align: right; line-height: 1.7; }
+
+  /* INCOME PROJECTION */
+  .income-card {
+    background: var(--green-soft); border: 1px solid rgba(170,255,87,0.2);
+    border-radius: 12px; padding: 20px 24px; margin-bottom: 20px;
+  }
+  .income-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin-bottom: 12px; }
+  .income-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .income-item { text-align: center; }
+  .income-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+  .income-value { font-size: 20px; font-weight: 700; color: var(--accent); }
+  .income-value.sm { font-size: 15px; color: var(--text-primary); }
+
+  @media print {
+    body { background: white; color: #1A1A1A; font-size: 12px; }
+    .header, .footer, .metric-card, .revision-box { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    @page { margin: 0; size: A4; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="brand-name">Julia Braga Martins</div>
+      <div class="brand-sub">Economista · Consultora Financeira</div>
+    </div>
+    <div class="report-meta">
+      <div class="report-date">22 de Junho de 2026</div>
+      <div class="report-conf">Relatório Confidencial</div>
+    </div>
+  </div>
+  <div class="header-title">Relatório de <span class="header-accent">Carteira</span></div>
+  <div class="header-subtitle">Julia Braga Martins · Perfil Moderado-Arrojado · R$ 12.000 · Selic 14,25% · IPCA 4,72%</div>
+  <div class="divider-line"></div>
+  <div class="metrics-row">
+    <div class="metric-card">
+      <div class="metric-label">Patrimônio alocado</div>
+      <div class="metric-value">R$ 12k</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Renda mensal estimada</div>
+      <div class="metric-value green">~R$ 70</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Retorno líquido est.</div>
+      <div class="metric-value green">~11% a.a.</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Próxima revisão</div>
+      <div class="metric-value sm">Setembro 2026</div>
+    </div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="body">
+
+  <!-- PERFIL DO CLIENTE -->
+  <div class="section">
+    <div class="section-title">Perfil do cliente</div>
+    <div class="profile-grid">
+      <div class="profile-item">
+        <div class="profile-item-label">Nome</div>
+        <div class="profile-item-value">Julia Braga Martins</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Idade</div>
+        <div class="profile-item-value">Menos de 25 anos</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Ocupação</div>
+        <div class="profile-item-value">Empresária</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Perfil de risco</div>
+        <div class="profile-item-value" style="color:var(--accent);">Moderado-Arrojado</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Objetivo principal</div>
+        <div class="profile-item-value">Gerar renda mensal</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Horizonte</div>
+        <div class="profile-item-value">Mais de 10 anos</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Experiência</div>
+        <div class="profile-item-value">Intermediário — renda fixa e fundos</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Investimentos atuais</div>
+        <div class="profile-item-value">Ativos tokenizados</div>
+      </div>
+    </div>
+
+    <div class="alert-box">
+      <div class="alert-icon">⚠</div>
+      <div class="alert-text">
+        <strong>Reserva de emergência inexistente.</strong> Julia indicou que não possui reserva de emergência e precisa incluí-la neste planejamento. Por isso, separamos <strong>R$ 3.000 (25%)</strong> em CDB com liquidez diária como colchão de segurança antes de qualquer outro investimento. A meta é aumentar essa reserva para R$ 6.000–9.000 ao longo dos próximos meses.
+      </div>
+    </div>
+
+    <div class="profile-highlight">
+      <div class="profile-highlight-icon">📋</div>
+      <div class="profile-highlight-text">
+        <strong>Nota sobre IR:</strong> Julia informou que não declara Imposto de Renda. Por isso, <strong>PGBL não foi incluído</strong> nesta carteira — a dedução fiscal do PGBL só beneficia quem faz declaração completa. Se isso mudar no futuro, incluiremos previdência na revisão.
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJEÇÃO DE RENDA -->
+  <div class="section">
+    <div class="section-title">Projeção de renda mensal</div>
+    <div class="income-card">
+      <div class="income-title">Estimativa de renda passiva com R$ 12.000 investidos</div>
+      <div class="income-grid">
+        <div class="income-item">
+          <div class="income-label">Dividendos FIIs (mensal)</div>
+          <div class="income-value">~R$ 30</div>
+        </div>
+        <div class="income-item">
+          <div class="income-label">Juros renda fixa (mensal equiv.)</div>
+          <div class="income-value">~R$ 40</div>
+        </div>
+        <div class="income-item">
+          <div class="income-label">Total estimado / mês</div>
+          <div class="income-value">~R$ 70</div>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:8px;">
+      Com R$ 12.000 a renda mensal ainda é modesta, mas o <span class="hi">horizonte de 10+ anos</span> é o maior trunfo: reinvestindo os rendimentos e fazendo aportes regulares, o efeito dos <strong>juros compostos</strong> multiplica o patrimônio. Com aportes de <span class="hi">R$ 500/mês</span>, em 10 anos o patrimônio pode chegar a <strong>~R$ 120.000</strong>, gerando renda mensal de <span class="hi">~R$ 700/mês</span>.
+    </p>
+  </div>
+
+  <!-- ALOCAÇÃO -->
+  <div class="section">
+    <div class="section-title">Alocação da carteira</div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-card-title">Distribuição por classe</div>
+        <div style="position:relative;height:200px;">
+          <canvas id="pieChart"></canvas>
+        </div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-left"><span class="legend-dot" style="background:#FF66AA"></span><span class="legend-name">Fundos Imobiliários</span></div><div class="legend-right"><span class="legend-pct">25%</span><span class="legend-val">R$ 3.000</span></div></div>
+          <div class="legend-item"><div class="legend-left"><span class="legend-dot" style="background:#FFCC22"></span><span class="legend-name">Reserva (CDB diário)</span></div><div class="legend-right"><span class="legend-pct">25%</span><span class="legend-val">R$ 3.000</span></div></div>
+          <div class="legend-item"><div class="legend-left"><span class="legend-dot" style="background:#AAFF57"></span><span class="legend-name">LCI / LCA</span></div><div class="legend-right"><span class="legend-pct">17%</span><span class="legend-val">R$ 2.000</span></div></div>
+          <div class="legend-item"><div class="legend-left"><span class="legend-dot" style="background:#00CCFF"></span><span class="legend-name">Tesouro IPCA+</span></div><div class="legend-right"><span class="legend-pct">13%</span><span class="legend-val">R$ 1.500</span></div></div>
+          <div class="legend-item"><div class="legend-left"><span class="legend-dot" style="background:#33FFCC"></span><span class="legend-name">ETFs</span></div><div class="legend-right"><span class="legend-pct">12%</span><span class="legend-val">R$ 1.500</span></div></div>
+          <div class="legend-item"><div class="legend-left"><span class="legend-dot" style="background:#CC66FF"></span><span class="legend-name">CRI Tokenizado</span></div><div class="legend-right"><span class="legend-pct">8%</span><span class="legend-val">R$ 1.000</span></div></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Rentabilidade líquida por ativo (% a.a.)</div>
+        <div style="position:relative;height:280px;">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ATIVOS -->
+  <div class="section">
+    <div class="section-title">Detalhamento dos ativos</div>
+    <div class="table-wrap" style="overflow:visible;">
+      <table class="asset-table">
+        <thead>
+          <tr>
+            <th style="width:34%">Produto</th>
+            <th>Valor</th>
+            <th>Rent. bruta</th>
+            <th>Tributação</th>
+            <th>Rent. líquida</th>
+            <th>Liquidez</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="asset-name">
+                <span class="tip-wrap">Fundos Imobiliários (FIIs) — 2 a 3 fundos
+                  <span class="tip-box">
+                    <strong>O que são?</strong> Fundos que investem em imóveis (galpões, shoppings, lajes) — você compra cotas na bolsa e recebe aluguéis mensais como dividendos.<br><br>
+                    <strong>Por que são prioridade?</strong> Seu objetivo é gerar renda mensal. Os FIIs pagam dividendos todo mês, isentos de IR para pessoa física. É a melhor ferramenta para renda passiva com R$3.000.<br><br>
+                    <strong>Sugestões:</strong> MXRF11 (crédito, mais estável), HGLG11 (galpões logísticos), XPML11 (shoppings). Diversificar entre 2–3 fundos reduz o risco.
+                  </span>
+                </span>
+              </div>
+              <div class="asset-desc">MXRF11 · HGLG11 · XPML11 · dividendos mensais</div>
+            </td>
+            <td class="td-right" style="font-weight:600;">R$ 3.000</td>
+            <td class="td-right">10–12%</td>
+            <td class="td-right"><span class="badge badge-isento">Isento IR</span></td>
+            <td class="td-right net-return">10–12%</td>
+            <td class="td-right" style="color:var(--text-secondary);">D+2</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="asset-name">
+                <span class="tip-wrap tip-flip">CDB Liquidez Diária · 102% CDI
+                  <span class="tip-box">
+                    <strong>O que é?</strong> CDB com resgate a qualquer momento (D+0). Funciona como uma conta remunerada — mais seguro e rentável que poupança.<br><br>
+                    <strong>Por que está aqui?</strong> Você não tem reserva de emergência. Esses R$3.000 são seu colchão de segurança — cobrem imprevistos sem precisar vender outros ativos na hora errada.<br><br>
+                    <strong>Meta:</strong> Aumentar para R$6.000–9.000 com aportes futuros antes de direcionar mais para renda variável.<br><br>
+                    <strong>FGC:</strong> Coberto até R$250k por CPF por instituição.
+                  </span>
+                </span>
+              </div>
+              <div class="asset-desc">Reserva de emergência · FGC · resgate imediato</div>
+            </td>
+            <td class="td-right" style="font-weight:600;">R$ 3.000</td>
+            <td class="td-right">14,5%</td>
+            <td class="td-right"><span class="badge badge-ir">IR 22,5%</span></td>
+            <td class="td-right" style="font-weight:600;color:var(--text-secondary);">11,0%</td>
+            <td class="td-right" style="color:var(--text-secondary);">D+0</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="asset-name">
+                <span class="tip-wrap tip-flip">LCI / LCA (Renda Fixa Isenta)
+                  <span class="tip-box">
+                    <strong>O que é?</strong> Letra de Crédito Imobiliário (LCI) ou do Agronegócio (LCA). Título emitido por bancos, isento de IR para pessoa física.<br><br>
+                    <strong>Vantagem:</strong> Rende 97–95% do CDI sem desconto de imposto — na prática, equivale a um CDB de ~115% CDI. Rendimento 100% seu.<br><br>
+                    <strong>FGC:</strong> Coberto até R$250k por CPF por instituição.<br><br>
+                    <strong>Atenção:</strong> Tem carência (geralmente 90 dias a 12 meses). Não é para emergências.
+                  </span>
+                </span>
+              </div>
+              <div class="asset-desc">97–95% CDI · isento de IR · FGC R$250k</div>
+            </td>
+            <td class="td-right" style="font-weight:600;">R$ 2.000</td>
+            <td class="td-right">13,7%</td>
+            <td class="td-right"><span class="badge badge-isento">Isento IR</span></td>
+            <td class="td-right net-return">13,7%</td>
+            <td class="td-right" style="color:var(--text-secondary);">12 meses</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="asset-name">
+                <span class="tip-wrap tip-flip">Tesouro IPCA+ 2029
+                  <span class="tip-box">
+                    <strong>O que é?</strong> Título público federal que paga inflação (IPCA) + taxa fixa (6,8%). Garante que seu dinheiro cresce acima da inflação.<br><br>
+                    <strong>Por que 2029?</strong> Com horizonte de 10+ anos, travar IPCA+6,8% agora é excelente. Se os juros caírem nos próximos anos, você garantiu uma taxa alta.<br><br>
+                    <strong>IR:</strong> 15% sobre o lucro no vencimento. Só paga quando resgata.
+                  </span>
+                </span>
+              </div>
+              <div class="asset-desc">IPCA + 6,8% a.a. · governo federal · D+1</div>
+            </td>
+            <td class="td-right" style="font-weight:600;">R$ 1.500</td>
+            <td class="td-right">11,5%*</td>
+            <td class="td-right"><span class="badge badge-ir">IR 15%</span></td>
+            <td class="td-right net-return">9,8%</td>
+            <td class="td-right" style="color:var(--text-secondary);">D+1</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="asset-name">
+                <span class="tip-wrap tip-flip">ETFs — IVVB11 + BOVA11
+                  <span class="tip-box">
+                    <strong>O que são?</strong> Fundos que replicam índices: IVVB11 acompanha o S&amp;P 500 (EUA); BOVA11 acompanha o Ibovespa (Brasil). Uma compra = centenas de empresas.<br><br>
+                    <strong>Por que para você?</strong> Perfil moderado-arrojado com 10+ anos de horizonte. ETFs são o melhor veículo para crescimento de longo prazo com baixo custo (0,10% a.a.).<br><br>
+                    <strong>Sugestão de split:</strong> R$1.000 em IVVB11 (dólar + EUA) e R$500 em BOVA11 (Brasil). O IVVB11 também funciona como proteção cambial.<br><br>
+                    <strong>IR:</strong> 15% sobre o lucro somente na venda.
+                  </span>
+                </span>
+              </div>
+              <div class="asset-desc">S&amp;P 500 + Ibovespa · custo 0,10% a.a.</div>
+            </td>
+            <td class="td-right" style="font-weight:600;">R$ 1.500</td>
+            <td class="td-right">12–15%</td>
+            <td class="td-right"><span class="badge badge-ir">IR 15%</span></td>
+            <td class="td-right net-return">10–13%</td>
+            <td class="td-right" style="color:var(--text-secondary);">D+2</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="asset-name">
+                <span class="tip-wrap tip-flip">CRI Tokenizado · IPCA+ 7,5%
+                  <span class="tip-box">
+                    <strong>O que é?</strong> Certificado de Recebíveis Imobiliários registrado em blockchain. Mesmo benefício fiscal do CRI convencional, com mais transparência.<br><br>
+                    <strong>Por que incluímos?</strong> Você já investe em ativos tokenizados — tem familiaridade com a classe. IPCA+7,5% isento de IR é uma das melhores relações risco-retorno disponíveis.<br><br>
+                    <strong>Plataforma:</strong> Zuvia ou Liqi (regulamentadas pela CVM). Não disponível em corretoras tradicionais.<br><br>
+                    <strong>Risco:</strong> Sem FGC. Por isso mantemos posição limitada (8%).
+                  </span>
+                </span>
+              </div>
+              <div class="asset-desc">Plataforma regulada CVM · lastro imobiliário</div>
+            </td>
+            <td class="td-right" style="font-weight:600;">R$ 1.000</td>
+            <td class="td-right">12,2%</td>
+            <td class="td-right"><span class="badge badge-isento">Isento IR</span></td>
+            <td class="td-right net-return">12,2%</td>
+            <td class="td-right" style="color:var(--text-secondary);">D+0</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-footer">* Rentabilidade nominal estimada com IPCA projetado em 4,7% a.a. · Todos os valores são estimativas. Rentabilidade passada não garante resultados futuros.</div>
+    </div>
+  </div>
+
+  <!-- ONDE COMPRAR -->
+  <div class="section">
+    <div class="section-title">Onde comprar cada ativo</div>
+    <div class="buy-grid">
+      <div class="buy-row">
+        <div class="buy-product"><span class="buy-product-dot" style="background:#FF66AA"></span><span class="buy-product-name">Fundos Imobiliários</span></div>
+        <div class="buy-platforms"><span class="buy-plat buy-plat-1">XP Investimentos</span><span class="buy-plat buy-plat-2">Clear (BTG)</span><span class="buy-plat buy-plat-3">Rico</span></div>
+      </div>
+      <div class="buy-row">
+        <div class="buy-product"><span class="buy-product-dot" style="background:#FFCC22"></span><span class="buy-product-name">CDB Liquidez Diária</span></div>
+        <div class="buy-platforms"><span class="buy-plat buy-plat-1">Nubank</span><span class="buy-plat buy-plat-2">XP Investimentos</span><span class="buy-plat buy-plat-3">BTG Pactual</span></div>
+      </div>
+      <div class="buy-row">
+        <div class="buy-product"><span class="buy-product-dot" style="background:#AAFF57"></span><span class="buy-product-name">LCI / LCA</span></div>
+        <div class="buy-platforms"><span class="buy-plat buy-plat-1">XP Investimentos</span><span class="buy-plat buy-plat-2">BTG Pactual</span><span class="buy-plat buy-plat-3">Rico</span></div>
+      </div>
+      <div class="buy-row">
+        <div class="buy-product"><span class="buy-product-dot" style="background:#00CCFF"></span><span class="buy-product-name">Tesouro IPCA+</span></div>
+        <div class="buy-platforms"><span class="buy-plat buy-plat-1">XP Investimentos</span><span class="buy-plat buy-plat-2">BTG Pactual</span><span class="buy-plat buy-plat-3">Nubank</span></div>
+      </div>
+      <div class="buy-row">
+        <div class="buy-product"><span class="buy-product-dot" style="background:#33FFCC"></span><span class="buy-product-name">ETFs (IVVB + BOVA)</span></div>
+        <div class="buy-platforms"><span class="buy-plat buy-plat-1">XP Investimentos</span><span class="buy-plat buy-plat-2">Clear (BTG)</span><span class="buy-plat buy-plat-3">Rico</span></div>
+      </div>
+      <div class="buy-row">
+        <div class="buy-product"><span class="buy-product-dot" style="background:#CC66FF"></span><span class="buy-product-name">CRI Tokenizado</span></div>
+        <div class="buy-platforms"><span class="buy-plat buy-plat-1">Zuvia</span><span class="buy-plat buy-plat-2">Liqi</span></div>
+      </div>
+    </div>
+    <div class="buy-note">
+      <strong>Dica:</strong> para simplificar, concentre FIIs, ETFs, LCI/LCA e Tesouro em uma única corretora (XP ou BTG). Apenas o CRI Tokenizado exige conta separada em plataforma especializada.
+    </div>
+  </div>
+
+  <!-- CONTEXTO MACRO -->
+  <div class="section">
+    <div class="section-title">Contexto macroeconômico — Junho 2026</div>
+    <div class="exp-wrap">
+
+      <div class="exp-item" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <span class="exp-arrow">▶</span>
+          <div style="display:flex;align-items:center;gap:24px;flex:1;">
+            <div style="min-width:130px;">
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);">Taxa Selic</div>
+              <div style="font-size:20px;font-weight:700;color:var(--accent);">14,25% a.a.</div>
+            </div>
+            <div style="font-size:12px;color:var(--text-secondary);">Juros reais elevados <strong>favorecem renda fixa</strong>. Momento excelente para travar taxas.</div>
+          </div>
+        </div>
+        <div class="exp-body">
+          <p>A <strong>Selic</strong> é a <em>taxa básica de juros</em> do Brasil. Com ela em <span class="hi">14,25%</span>, investimentos de renda fixa pós-fixados (CDB, LCI) <strong>rendem muito bem</strong>. Conforme o Copom cortar a Selic, esses rendimentos caem — <em>por isso faz sentido travar parte da carteira em IPCA+ agora</em>.</p>
+          <div class="exp-source">Fonte: <a href="https://www.bcb.gov.br/controleinflacao/taxaselic" target="_blank">Banco Central — bcb.gov.br</a></div>
+        </div>
+      </div>
+
+      <div class="exp-item" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <span class="exp-arrow">▶</span>
+          <div style="display:flex;align-items:center;gap:24px;flex:1;">
+            <div style="min-width:130px;">
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);">IPCA (12 meses)</div>
+              <div style="font-size:20px;font-weight:700;color:var(--accent);">4,72%</div>
+            </div>
+            <div style="font-size:12px;color:var(--text-secondary);">Acima da meta. Justifica <strong>peso em ativos IPCA+</strong> para preservar poder de compra.</div>
+          </div>
+        </div>
+        <div class="exp-body">
+          <p>Com inflação em <span class="hi">4,72%</span>, qualquer investimento que renda menos perde poder de compra. Sua carteira tem <span class="hi">38% em ativos indexados ao IPCA ou à Selic</span> — garantindo <em>rentabilidade real positiva</em> mesmo se a inflação subir.</p>
+          <div class="exp-source">Fonte: <a href="https://www.ibge.gov.br/explica/inflacao.php" target="_blank">IBGE — ibge.gov.br</a></div>
+        </div>
+      </div>
+
+      <div class="exp-item" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <span class="exp-arrow">▶</span>
+          <div style="display:flex;align-items:center;gap:24px;flex:1;">
+            <div style="min-width:130px;">
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);">Ibovespa</div>
+              <div style="font-size:20px;font-weight:700;color:var(--accent);">~169.000 pts</div>
+            </div>
+            <div style="font-size:12px;color:var(--text-secondary);">Queda recente cria <strong>janela de entrada</strong> interessante para ETFs de longo prazo.</div>
+          </div>
+        </div>
+        <div class="exp-body">
+          <p>Após quedas consecutivas, os preços ficam mais baratos — <span class="hi">boa oportunidade de compra</span> para quem tem horizonte de <em>10+ anos como você</em>. É exatamente por isso que incluímos <span class="hi">BOVA11</span> na carteira.</p>
+          <div class="exp-source">Fonte: <a href="https://www.b3.com.br/pt_br/market-data-e-indices/indices/indices-amplos/ibovespa.htm" target="_blank">B3 — b3.com.br</a></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RISCO -->
+  <div class="section">
+    <div class="section-title">Análise de risco</div>
+    <div class="exp-wrap">
+
+      <div class="risk-head">
+        <div>Risco</div><div>Probabilidade</div><div>Impacto</div><div>Mitigação adotada</div>
+      </div>
+
+      <div class="exp-item" onclick="toggleExp(this)">
+        <div class="exp-header" style="display:grid;grid-template-columns:24px 2fr 1fr 1fr 2fr;gap:0;padding:11px 14px;">
+          <span class="exp-arrow" style="align-self:center;">▶</span>
+          <div style="font-size:12px;">Uso da reserva em emergência</div>
+          <div class="risk-med" style="font-size:12px;">Média</div>
+          <div style="font-size:12px;">Alto</div>
+          <div style="font-size:12px;color:var(--text-secondary);">R$3.000 em CDB D+0 separados</div>
+        </div>
+        <div class="exp-body">
+          <p>Como empresária, sua renda pode variar. A <strong>reserva de R$3.000</strong> é o primeiro escudo — resgatável na hora, sem perda. <span class="hi">Prioridade #1:</span> aumentar para <strong>R$6.000–9.000</strong> antes de expandir os outros investimentos. Enquanto a reserva não atingir esse patamar, <em>novos aportes devem ir para ela</em>.</p>
+        </div>
+      </div>
+
+      <div class="exp-item" onclick="toggleExp(this)">
+        <div class="exp-header" style="display:grid;grid-template-columns:24px 2fr 1fr 1fr 2fr;gap:0;padding:11px 14px;">
+          <span class="exp-arrow" style="align-self:center;">▶</span>
+          <div style="font-size:12px;">Queda prolongada da bolsa</div>
+          <div class="risk-med" style="font-size:12px;">Média</div>
+          <div style="font-size:12px;">Médio</div>
+          <div style="font-size:12px;color:var(--text-secondary);">12% em ETFs + horizonte longo</div>
+        </div>
+        <div class="exp-body">
+          <p>Se a bolsa cair 30%, o impacto na carteira total seria de <span class="hi">~4%</span> (R$500). Com <strong>horizonte de 10+ anos</strong>, a tendência histórica é de recuperação. Você indicou que <em>"ficaria preocupado, mas aguardaria recuperar"</em> — essa é exatamente a postura correta.</p>
+        </div>
+      </div>
+
+      <div class="exp-item" onclick="toggleExp(this)">
+        <div class="exp-header" style="display:grid;grid-template-columns:24px 2fr 1fr 1fr 2fr;gap:0;padding:11px 14px;">
+          <span class="exp-arrow" style="align-self:center;">▶</span>
+          <div style="font-size:12px;">Crise de crédito / default bancário</div>
+          <div class="risk-low" style="font-size:12px;">Baixa</div>
+          <div style="font-size:12px;">Alto</div>
+          <div style="font-size:12px;color:var(--text-secondary);">FGC cobre CDB e LCI/LCA</div>
+        </div>
+        <div class="exp-body">
+          <p>O <strong>FGC</strong> cobre até <span class="hi">R$250 mil por CPF por instituição</span>. Seus R$5.000 em CDB + LCI estão <em>integralmente protegidos</em>. Para o CRI Tokenizado (R$1.000), não há FGC — por isso a exposição é pequena.</p>
+        </div>
+      </div>
+
+      <div class="exp-item" onclick="toggleExp(this)">
+        <div class="exp-header" style="display:grid;grid-template-columns:24px 2fr 1fr 1fr 2fr;gap:0;padding:11px 14px;">
+          <span class="exp-arrow" style="align-self:center;">▶</span>
+          <div style="font-size:12px;">Aceleração da inflação</div>
+          <div class="risk-med" style="font-size:12px;">Média</div>
+          <div style="font-size:12px;">Médio</div>
+          <div style="font-size:12px;color:var(--text-secondary);">38% indexada a IPCA ou Selic</div>
+        </div>
+        <div class="exp-body">
+          <p>Ativos indexados ao IPCA (Tesouro IPCA+ e CRI) <strong>se beneficiam</strong> se a inflação subir — <span class="hi">pagam mais conforme a inflação sobe</span>. A reserva em CDB pós-fixado também acompanha a Selic, que sobe junto com a inflação. <em>Proteção natural embutida</em>.</p>
+        </div>
+      </div>
+
+      <div class="exp-item" onclick="toggleExp(this)">
+        <div class="exp-header" style="display:grid;grid-template-columns:24px 2fr 1fr 1fr 2fr;gap:0;padding:11px 14px;">
+          <span class="exp-arrow" style="align-self:center;">▶</span>
+          <div style="font-size:12px;">Risco regulatório (tokenização)</div>
+          <div class="risk-low" style="font-size:12px;">Baixa</div>
+          <div style="font-size:12px;">Baixo</div>
+          <div style="font-size:12px;color:var(--text-secondary);">Apenas 8% (R$1.000) exposta</div>
+        </div>
+        <div class="exp-body">
+          <p>Ativos tokenizados são <strong>regulamentados pela CVM</strong>, mas a regulação <em>ainda evolui</em>. Impacto máximo na carteira: <span class="hi">8%</span> (R$1.000). Mantemos essa exposição porque você já tem <strong>familiaridade com a classe</strong> e o retorno isento de IR é atrativo.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TRIGGERS -->
+  <div class="section">
+    <div class="section-title">Triggers de rebalanceamento</div>
+    <div class="triggers">
+      <div class="trigger">
+        <div class="trigger-condition">Reserva atingir R$ 6.000</div>
+        <div class="trigger-action">Próximos aportes passam a ir para FIIs e LCI/LCA — a reserva está adequada</div>
+      </div>
+      <div class="trigger">
+        <div class="trigger-condition">Selic cair abaixo de 12% a.a.</div>
+        <div class="trigger-action">Aumentar FIIs (que se valorizam com queda de juros) e travar mais em IPCA+</div>
+      </div>
+      <div class="trigger">
+        <div class="trigger-condition">Patrimônio atingir R$ 30.000</div>
+        <div class="trigger-action">Diversificar com CDB 730 dias (115% CDI) e considerar previdência se declarar IR</div>
+      </div>
+      <div class="trigger">
+        <div class="trigger-condition">Passar a declarar IR completo</div>
+        <div class="trigger-action">Incluir PGBL (previdência com dedução fiscal de até 12% da renda bruta)</div>
+      </div>
+      <div class="trigger">
+        <div class="trigger-condition">Ibovespa cair mais 20%</div>
+        <div class="trigger-action">Oportunidade: comprar mais BOVA11 com parte da reserva acima de R$6.000</div>
+      </div>
+      <div class="trigger">
+        <div class="trigger-condition">Vencimento de LCI / LCA</div>
+        <div class="trigger-action">Reinvestir no produto de maior yield líquido disponível naquele momento</div>
+      </div>
+    </div>
+    <div class="revision-box">
+      <div class="revision-dot"></div>
+      <div><strong>Próxima revisão ordinária:</strong> Setembro de 2026 — após reunião do Copom de agosto e progresso na construção da reserva de emergência.</div>
+    </div>
+  </div>
+
+  <!-- PLANO DE APORTES -->
+  <div class="section">
+    <div class="section-title">Plano de aportes sugerido</div>
+    <div class="exp-wrap">
+
+      <div class="exp-item" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <span class="exp-arrow">▶</span>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;color:var(--text-primary);">Fase 1 — Construir a reserva (próximos 3–6 meses)</div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Prioridade: aportes mensais no CDB liquidez diária até atingir R$ 6.000–9.000</div>
+          </div>
+        </div>
+        <div class="exp-body">
+          <p>Como empresária, sua renda pode oscilar. A reserva é o <span class="hi">alicerce de tudo</span>. Sem ela, um imprevisto pode te forçar a <strong>vender FIIs ou ETFs em baixa</strong> — exatamente o pior momento. Aportes de <span class="hi">R$ 500/mês</span> completam a reserva em ~6 meses.</p>
+        </div>
+      </div>
+
+      <div class="exp-item" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <span class="exp-arrow">▶</span>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;color:var(--text-primary);">Fase 2 — Crescer a renda passiva (6–18 meses)</div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Aportes regulares em FIIs e LCI/LCA para aumentar os dividendos mensais</div>
+          </div>
+        </div>
+        <div class="exp-body">
+          <p>Com a reserva montada, novos aportes vão para <span class="hi">FIIs</span> (que geram mais renda mensal) e <strong>LCI/LCA</strong> (rendimento isento). Meta: chegar a <span class="hi">R$ 30.000 investidos</span> em 18 meses, com renda mensal de ~R$ 180.</p>
+        </div>
+      </div>
+
+      <div class="exp-item" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <span class="exp-arrow">▶</span>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;color:var(--text-primary);">Fase 3 — Diversificar e crescer (18+ meses)</div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Incluir CDB 730d, avaliar previdência, ampliar ETFs internacionais</div>
+          </div>
+        </div>
+        <div class="exp-body">
+          <p>Com patrimônio acima de R$30k, faz sentido diversificar: <span class="hi">CDB 730 dias</span> (115% CDI, IR de 15%), mais ETFs e, se estiver declarando IR pelo completo, incluir <strong>PGBL</strong>. Com <span class="hi">R$ 500/mês</span> constantes, em 10 anos o patrimônio pode superar <strong>R$ 120.000</strong>.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- REFERÊNCIAS -->
+  <div class="section">
+    <div class="section-title">Referências e fontes oficiais</div>
+    <div class="refs-grid">
+      <div class="ref-card">
+        <div class="ref-source">Banco Central do Brasil</div>
+        <div class="ref-link"><a href="https://www.bcb.gov.br" target="_blank">bcb.gov.br</a></div>
+        <div class="ref-desc">Taxa Selic, câmbio, dados macroeconômicos</div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-source">IBGE</div>
+        <div class="ref-link"><a href="https://www.ibge.gov.br/explica/inflacao.php" target="_blank">ibge.gov.br</a></div>
+        <div class="ref-desc">IPCA e indicadores econômicos</div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-source">B3 — Bolsa de Valores</div>
+        <div class="ref-link"><a href="https://www.b3.com.br" target="_blank">b3.com.br</a></div>
+        <div class="ref-desc">FIIs, ETFs, dados de mercado</div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-source">Tesouro Direto</div>
+        <div class="ref-link"><a href="https://www.tesourodireto.com.br" target="_blank">tesourodireto.com.br</a></div>
+        <div class="ref-desc">Títulos públicos e simulações</div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-source">FGC</div>
+        <div class="ref-link"><a href="https://www.fgc.org.br" target="_blank">fgc.org.br</a></div>
+        <div class="ref-desc">Cobertura de CDB, LCI/LCA</div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-source">CVM</div>
+        <div class="ref-link"><a href="https://www.gov.br/cvm/pt-br" target="_blank">gov.br/cvm</a></div>
+        <div class="ref-desc">Regulação de ativos tokenizados</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div>
+    <div class="footer-brand">Julia Braga Martins</div>
+    <div>Economista · Consultora Financeira · w.juliabm@gmail.com</div>
+  </div>
+  <div class="footer-right">
+    <div>Relatório confidencial, destinado exclusivamente a Julia Braga Martins.</div>
+    <div>Não constitui oferta de valores mobiliários. Rentabilidade passada não garante resultados futuros.</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+function toggleExp(el) { el.classList.toggle('open'); }
+
+const C = {
+  fiis:     '#FF66AA',
+  reserva:  '#FFCC22',
+  rfIsenta: '#AAFF57',
+  tesouro:  '#00CCFF',
+  etfs:     '#33FFCC',
+  token:    '#CC66FF',
+};
+
+Chart.defaults.color = '#AAAAAA';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+
+new Chart(document.getElementById('pieChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Fundos Imobiliários','Reserva (CDB diário)','LCI / LCA','Tesouro IPCA+','ETFs','CRI Tokenizado'],
+    datasets: [{
+      data: [25, 25, 17, 13, 12, 8],
+      backgroundColor: [C.fiis, C.reserva, C.rfIsenta, C.tesouro, C.etfs, C.token],
+      borderWidth: 0
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '65%',
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed + '%' }}
+    }
+  }
+});
+
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: [
+      'LCI / LCA',
+      'CRI Tokenizado',
+      'Fundos Imobiliários',
+      'CDB Liquidez Diária',
+      'ETFs (IVVB + BOVA)',
+      'Tesouro IPCA+'
+    ],
+    datasets: [{
+      data: [13.7, 12.2, 11.3, 11.0, 11.2, 9.8],
+      backgroundColor: [C.rfIsenta, C.token, C.fiis, C.reserva, C.etfs, C.tesouro],
+      borderRadius: 4,
+      borderSkipped: false
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.parsed.x.toFixed(1) + '% a.a. líquido de IR' }}
+    },
+    scales: {
+      x: {
+        min: 8, max: 15,
+        ticks: { callback: v => v + '%', font: { size: 11 }, color: '#CCCCCC' },
+        grid: { color: 'rgba(255,255,255,0.06)' }
+      },
+      y: {
+        ticks: { font: { size: 11 }, color: '#CCCCCC' },
+        grid: { display: false }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>

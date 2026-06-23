@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório de Carteira — Luiz Henrique Teixeira</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg-page: #111111;
+    --bg-card: #1A1A1A;
+    --bg-card-2: #1E1E1E;
+    --bg-header: #0D0D0D;
+    --bg-mid: #222222;
+    --text-primary: #E8E8E4;
+    --text-secondary: #AAAAAA;
+    --text-muted: #777777;
+    --accent: #AAFF57;
+    --accent-mid: #88DD33;
+    --border: #2A2A2A;
+    --green-soft: rgba(170,255,87,0.12);
+    --green-text: #AAFF57;
+    --amber-soft: rgba(255,204,34,0.12);
+    --amber-text: #FFCC22;
+    --red-soft: rgba(255,102,170,0.12);
+    --red-text: #FF66AA;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .header { background: var(--bg-header); padding: 40px 52px 36px; border-bottom: 1px solid var(--border); }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; }
+  .brand-name { font-size: 12px; font-weight: 600; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 4px; }
+  .brand-sub { font-size: 11px; color: var(--text-muted); }
+  .report-meta { text-align: right; }
+  .report-date { font-size: 13px; color: var(--text-primary); font-weight: 500; margin-bottom: 2px; }
+  .report-conf { font-size: 11px; color: var(--text-muted); }
+  .header-title { font-size: 36px; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 6px; line-height: 1.1; }
+  .header-accent { color: var(--accent); }
+  .header-subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 32px; }
+  .divider-line { width: 48px; height: 2px; background: var(--accent); margin-bottom: 32px; }
+  .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .metric-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; }
+  .metric-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.09em; color: var(--text-muted); margin-bottom: 8px; }
+  .metric-value { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+  .metric-value.green { color: var(--accent); }
+  .metric-value.sm { font-size: 17px; }
+
+  .body { padding: 36px 52px 40px; }
+  .section { margin-bottom: 36px; }
+  .section-title {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--text-secondary); margin-bottom: 14px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::before { content:''; display:inline-block; width:3px; height:12px; background:var(--accent); border-radius:2px; }
+
+  .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .profile-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+  .profile-item-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin-bottom: 4px; }
+  .profile-item-value { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+
+  .welcome-card { background: var(--green-soft); border: 1px solid rgba(170,255,87,0.25); border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; }
+  .welcome-card h3 { font-size: 16px; color: var(--accent); margin-bottom: 8px; font-weight: 700; }
+  .welcome-card p { font-size: 13px; color: var(--text-primary); line-height: 1.7; }
+  .welcome-card strong { color: var(--accent); }
+
+  .alert-box { background: var(--amber-soft); border: 1px solid rgba(255,204,34,0.25); border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 14px; }
+  .alert-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .alert-text { font-size: 13px; color: var(--text-primary); line-height: 1.6; }
+  .alert-text strong { color: var(--amber-text); }
+
+  .chart-card { background: var(--bg-card-2); border: 1px solid var(--border); border-radius: 12px; padding: 22px 24px; }
+  .chart-card-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .charts-grid { display: grid; grid-template-columns: 300px 1fr; gap: 16px; }
+
+  .legend { display: flex; flex-direction: column; gap: 7px; margin-top: 14px; }
+  .legend-item { display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
+  .legend-left { display: flex; align-items: center; gap: 8px; }
+  .legend-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+  .legend-name { color: #CCCCCC; }
+  .legend-right { display: flex; gap: 14px; }
+  .legend-pct { font-weight: 700; color: #EEEEEE; min-width: 32px; text-align: right; }
+  .legend-val { color: var(--text-muted); min-width: 60px; text-align: right; }
+
+  .tip-wrap { position: relative; display: inline; cursor: help; border-bottom: 1px dotted var(--accent); }
+  .tip-box { display: none; position: absolute; bottom: calc(100% + 10px); left: 0; background: #0A0A0A; color: #E0E0E0; border: 1px solid #3A3A3A; border-radius: 10px; padding: 14px 16px; width: 320px; font-size: 12px; line-height: 1.6; z-index: 1000; box-shadow: 0 8px 28px rgba(0,0,0,.7); pointer-events: none; }
+  .tip-box strong { color: var(--accent); }
+  .tip-wrap:hover .tip-box { display: block; }
+  .tip-flip .tip-box { bottom: auto; top: calc(100% + 10px); }
+
+  .table-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; }
+  .asset-table { width: 100%; border-collapse: collapse; }
+  .asset-table th { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); text-align: left; padding: 10px 14px; background: var(--bg-mid); border-bottom: 1px solid var(--border); }
+  .asset-table th:first-child { border-radius: 12px 0 0 0; }
+  .asset-table th:last-child { border-radius: 0 12px 0 0; }
+  .asset-table th:not(:first-child) { text-align: right; }
+  .asset-table td { padding: 14px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .asset-table tr:last-child td { border-bottom: none; }
+  .asset-table tr:hover td { background: rgba(170,255,87,0.03); }
+  .asset-name { font-weight: 600; font-size: 13px; color: var(--text-primary); }
+  .asset-desc { font-size: 11px; color: var(--text-secondary); margin-top: 3px; }
+  .td-right { text-align: right; }
+  .badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 20px; }
+  .badge-isento { background: var(--green-soft); color: var(--green-text); }
+  .badge-ir { background: var(--amber-soft); color: var(--amber-text); }
+  .net-return { font-weight: 700; color: var(--accent); font-size: 14px; }
+  .table-footer { padding: 10px 14px; background: var(--bg-mid); border-top: 1px solid var(--border); font-size: 10px; color: var(--text-muted); font-style: italic; border-radius: 0 0 12px 12px; }
+
+  .exp-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .exp-item { border-bottom: 1px solid var(--border); }
+  .exp-item:last-child { border-bottom: none; }
+  .exp-header { display: flex; align-items: center; gap: 12px; padding: 14px 20px; cursor: pointer; user-select: none; transition: background .15s; }
+  .exp-header:hover { background: rgba(170,255,87,0.04); }
+  .exp-arrow { font-size: 11px; color: var(--text-muted); transition: transform .25s; flex-shrink: 0; }
+  .exp-item.open .exp-arrow { transform: rotate(90deg); }
+  .exp-body { max-height: 0; overflow: hidden; transition: max-height .35s ease, padding .35s ease; padding: 0 20px; font-size: 12px; color: var(--text-secondary); line-height: 1.7; }
+  .exp-item.open .exp-body { max-height: 450px; padding: 0 20px 18px; }
+  .exp-source { margin-top: 8px; font-size: 11px; }
+  .exp-source a { color: var(--accent); text-decoration: none; }
+  .hi { color: var(--accent); font-weight: 600; }
+
+  .buy-grid { display: flex; flex-direction: column; gap: 8px; }
+  .buy-row { display: grid; grid-template-columns: 220px 1fr; gap: 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .buy-product { padding: 12px 16px; display: flex; align-items: center; gap: 10px; border-right: 1px solid var(--border); background: var(--bg-mid); }
+  .buy-product-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+  .buy-product-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+  .buy-platforms { padding: 12px 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .buy-plat { font-size: 11px; padding: 4px 10px; border-radius: 6px; font-weight: 600; }
+  .buy-plat-1 { background: var(--accent); color: #111; }
+  .buy-plat-2 { background: #2A2A2A; color: #CCC; border: 1px solid #3A3A3A; }
+  .buy-plat-3 { background: #2A2A2A; color: #999; border: 1px solid #333; }
+  .buy-note { margin-top: 12px; padding: 14px 18px; background: var(--green-soft); border: 1px solid rgba(170,255,87,0.2); border-radius: 10px; font-size: 12px; color: var(--text-primary); line-height: 1.6; }
+  .buy-note strong { color: var(--accent); }
+
+  .steps-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .step-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; position: relative; }
+  .step-num { position: absolute; top: -10px; left: 18px; background: var(--accent); color: #111; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; }
+  .step-title-c { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-top: 6px; margin-bottom: 8px; }
+  .step-text { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+  .step-text strong { color: var(--accent); }
+
+  .income-card { background: var(--bg-card-2); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; }
+  .income-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin-bottom: 12px; }
+  .income-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .income-item { text-align: center; padding: 14px 8px; background: var(--bg-card); border-radius: 8px; }
+  .income-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; }
+  .income-value { font-size: 17px; font-weight: 700; color: var(--accent); }
+  .income-period { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+  .refs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .ref-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .ref-source { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin-bottom: 4px; }
+  .ref-link { font-size: 12px; }
+  .ref-link a { color: var(--accent); text-decoration: none; }
+  .ref-desc { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+  .footer { background: var(--bg-header); color: var(--text-muted); padding: 22px 52px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; gap: 24px; border-top: 1px solid var(--border); }
+  .footer-brand { color: var(--accent); font-weight: 600; font-size: 12px; margin-bottom: 3px; }
+  .footer-right { text-align: right; line-height: 1.7; }
+
+  @media (max-width: 600px) {
+    .header { padding: 24px 18px 22px; }
+    .header-title { font-size: 26px; }
+    .header-subtitle { font-size: 12px; margin-bottom: 22px; }
+    .metrics-row { grid-template-columns: 1fr 1fr; }
+    .metric-value { font-size: 18px; }
+    .metric-value.sm { font-size: 14px; }
+    .body { padding: 26px 16px 30px; }
+    .section { margin-bottom: 28px; }
+    .profile-grid { grid-template-columns: 1fr; }
+    .charts-grid { grid-template-columns: 1fr; }
+    .chart-card { padding: 18px 16px; }
+    .table-wrap { overflow-x: auto !important; overflow-y: visible !important; -webkit-overflow-scrolling: touch; }
+    .asset-table { min-width: 600px; }
+    .buy-row { grid-template-columns: 1fr; }
+    .buy-product { border-right: none; border-bottom: 1px solid var(--border); }
+    .steps-grid { grid-template-columns: 1fr; gap: 18px; }
+    .income-grid { grid-template-columns: 1fr 1fr; }
+    .refs-grid { grid-template-columns: 1fr; }
+    .footer { flex-direction: column; align-items: flex-start; padding: 18px 18px; }
+    .footer-right { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="brand-name">Julia Braga Martins</div>
+      <div class="brand-sub">Economista · Consultora Financeira</div>
+    </div>
+    <div class="report-meta">
+      <div class="report-date">23 de Junho de 2026</div>
+      <div class="report-conf">Relatório Confidencial</div>
+    </div>
+  </div>
+  <div class="header-title">Relatório de <span class="header-accent">Carteira</span></div>
+  <div class="header-subtitle">Luiz Henrique Teixeira · Perfil Conservador · R$ 1.000/mês · Horizonte curto prazo</div>
+  <div class="divider-line"></div>
+  <div class="metrics-row">
+    <div class="metric-card">
+      <div class="metric-label">Aporte mensal</div>
+      <div class="metric-value">R$ 1.000</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Em 12 meses</div>
+      <div class="metric-value green">~R$ 12.700</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Liquidez</div>
+      <div class="metric-value sm">100% diária</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Próxima revisão</div>
+      <div class="metric-value sm">Setembro 2026</div>
+    </div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="body">
+
+  <!-- BOAS-VINDAS -->
+  <div class="section">
+    <div class="welcome-card">
+      <h3>👋 Bem-vindo, Luiz!</h3>
+      <p>Esse relatório foi montado para o seu cenário específico: você pode precisar do dinheiro em <strong>menos de 1 ano</strong>, vai aportar <strong>R$ 1.000 todo mês</strong>, e quer <strong>preservar o patrimônio</strong>. Em situações assim, a regra de ouro é: <strong>liquidez total + zero risco de oscilação</strong>. Tudo aqui pode ser resgatado em até 1 dia útil, sem perda. Você nunca vai abrir o app e ver o saldo "menor que ontem".</p>
+    </div>
+  </div>
+
+  <!-- PERFIL -->
+  <div class="section">
+    <div class="section-title">Perfil do cliente</div>
+    <div class="profile-grid">
+      <div class="profile-item">
+        <div class="profile-item-label">Nome</div>
+        <div class="profile-item-value">Luiz Henrique Teixeira</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Idade</div>
+        <div class="profile-item-value">Menos de 25 anos</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Ocupação</div>
+        <div class="profile-item-value">Autônomo / Freelancer</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Perfil de risco</div>
+        <div class="profile-item-value" style="color:var(--accent);">Conservador</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Objetivo principal</div>
+        <div class="profile-item-value">Preservar o patrimônio</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Horizonte</div>
+        <div class="profile-item-value" style="color:var(--amber-text);">Menos de 1 ano</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Tipo de aporte</div>
+        <div class="profile-item-value">R$ 1.000 todo mês</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Reserva atual</div>
+        <div class="profile-item-value">Parcial — pode aumentar</div>
+      </div>
+    </div>
+
+    <div class="alert-box">
+      <div class="alert-icon">⏱</div>
+      <div class="alert-text">
+        <strong>Horizonte de até 1 ano muda tudo.</strong> Com prazo curto, <strong>NÃO usamos</strong> Tesouro IPCA+, LCI/LCA (que têm carência) ou qualquer ativo com oscilação de preço. Toda a carteira fica em <strong>aplicações com liquidez diária (D+0 ou D+1) e sem risco de marcação a mercado</strong>. Pode parecer "menos rentável" no papel, mas é o único jeito de garantir que o dinheiro esteja lá quando você precisar.
+      </div>
+    </div>
+  </div>
+
+  <!-- ALOCAÇÃO -->
+  <div class="section">
+    <div class="section-title">Alocação de cada R$ 1.000 mensal</div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-card-title">Distribuição por classe</div>
+        <div style="position:relative;height:200px;">
+          <canvas id="pieChart"></canvas>
+        </div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-left"><span class="legend-dot" style="background:#FFCC22"></span><span class="legend-name">CDB Liquidez Diária</span></div><div class="legend-right"><span class="legend-pct">70%</span><span class="legend-val">R$ 700</span></div></div>
+          <div class="legend-item"><div class="legend-left"><span class="legend-dot" style="background:#00CCFF"></span><span class="legend-name">Tesouro Selic 2027</span></div><div class="legend-right"><span class="legend-pct">30%</span><span class="legend-val">R$ 300</span></div></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Rentabilidade líquida (% a.a.)</div>
+        <div style="position:relative;height:200px;">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ATIVOS -->
+  <div class="section">
+    <div class="section-title">Detalhamento dos ativos</div>
+    <div class="table-wrap" style="overflow:visible;">
+      <table class="asset-table">
+        <thead>
+          <tr>
+            <th style="width:38%">Produto</th>
+            <th>Aporte/mês</th>
+            <th>Rent. bruta</th>
+            <th>Tributação</th>
+            <th>Rent. líquida</th>
+            <th>Liquidez</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="asset-name">
+                <span class="tip-wrap">CDB Liquidez Diária — 102% CDI
+                  <span class="tip-box">
+                    <strong>O que é?</strong> Um título de banco que você pode resgatar a <em>qualquer momento</em> (D+0). É a melhor alternativa à poupança — rende mais que o dobro com a mesma segurança.<br><br>
+                    <strong>Por que é a base da sua carteira?</strong> Você precisa do dinheiro em menos de 1 ano. Esse é o único produto que combina <em>rentabilidade boa, sem oscilação e resgate imediato</em>.<br><br>
+                    <strong>FGC:</strong> Garantido até R$ 250 mil pelo Fundo Garantidor de Créditos — mesmo se o banco quebrar, o governo paga.<br><br>
+                    <strong>Onde:</strong> Nubank, Inter ou C6 — costumam oferecer CDBs com bom rendimento e sem valor mínimo.
+                  </span>
+                </span>
+              </div>
+              <div class="asset-desc">Banco digital · FGC R$250k · resgate na hora · sem mínimo</div>
+            </td>
+            <td class="td-right" style="font-weight:600;">R$ 700</td>
+            <td class="td-right">14,5%</td>
+            <td class="td-right"><span class="badge badge-ir">IR 22,5%</span></td>
+            <td class="td-right net-return">~11,0%</td>
+            <td class="td-right" style="color:var(--text-secondary);">D+0</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="asset-name">
+                <span class="tip-wrap tip-flip">Tesouro Selic 2027
+                  <span class="tip-box">
+                    <strong>O que é?</strong> O investimento mais seguro do Brasil — quem te paga é o <em>governo federal</em>. Rende exatamente a taxa Selic (14,25% hoje).<br><br>
+                    <strong>Por que esse vencimento?</strong> O Tesouro Selic <strong>não oscila no preço</strong> (diferente do IPCA+ ou prefixado). Você sempre recebe a Selic acumulada, sem surpresa.<br><br>
+                    <strong>Vantagem vs CDB:</strong> Segurança ligeiramente maior (é o governo, não banco). Resgate em D+1.<br><br>
+                    <strong>Mínimo:</strong> ~R$30. <strong>IR:</strong> 22,5% até 6 meses, caindo para 15% após 2 anos.
+                  </span>
+                </span>
+              </div>
+              <div class="asset-desc">100% Selic · governo federal · sem oscilação · D+1</div>
+            </td>
+            <td class="td-right" style="font-weight:600;">R$ 300</td>
+            <td class="td-right">14,25%</td>
+            <td class="td-right"><span class="badge badge-ir">IR 22,5%</span></td>
+            <td class="td-right net-return">~11,0%</td>
+            <td class="td-right" style="color:var(--text-secondary);">D+1</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-footer">Estimativas baseadas na Selic de 14,25% a.a. (junho/2026). Rentabilidade passada não garante resultados futuros.</div>
+    </div>
+  </div>
+
+  <!-- PROJEÇÃO -->
+  <div class="section">
+    <div class="section-title">Quanto você terá acumulado</div>
+    <div class="income-card">
+      <div class="income-title">Projeção com aportes de R$ 1.000/mês a ~11% a.a. líquido</div>
+      <div class="income-grid">
+        <div class="income-item">
+          <div class="income-label">3 meses</div>
+          <div class="income-value">~R$ 3.050</div>
+          <div class="income-period">acumulado</div>
+        </div>
+        <div class="income-item">
+          <div class="income-label">6 meses</div>
+          <div class="income-value">~R$ 6.150</div>
+          <div class="income-period">acumulado</div>
+        </div>
+        <div class="income-item">
+          <div class="income-label">12 meses</div>
+          <div class="income-value">~R$ 12.700</div>
+          <div class="income-period">acumulado</div>
+        </div>
+        <div class="income-item">
+          <div class="income-label">24 meses</div>
+          <div class="income-value">~R$ 27.000</div>
+          <div class="income-period">acumulado</div>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--accent);">Em 12 meses você terá pouco mais de R$ 12.700</strong> — os <strong>R$ 12.000 aportados</strong> + cerca de <strong>R$ 700 de juros</strong>. Como o dinheiro pode ficar disponível na hora, você pode usar como reserva de emergência, dar entrada em algo, fazer uma viagem, ou simplesmente deixar acumulando para investimentos maiores quando o horizonte mudar.
+    </p>
+  </div>
+
+  <!-- PASSO A PASSO -->
+  <div class="section">
+    <div class="section-title">Seu passo a passo</div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-title-c">Abra conta no Nubank</div>
+        <div class="step-text">Gratuita e 100% online em ~10 minutos. O app do <strong>Nubank</strong> tem CDB de liquidez diária dentro da própria conta — sem precisar transferir para corretora.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-title-c">Configure aporte automático</div>
+        <div class="step-text">Defina um dia fixo do mês (ex: dia 5, logo após receber). Programe um <strong>PIX agendado</strong> de R$ 1.000 da sua conta atual para o Nubank.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-title-c">Divida o aporte mensal</div>
+        <div class="step-text">No app, aplique <strong>R$ 700 no CDB</strong> ("Caixinha turbinada" ou similar) e <strong>R$ 300 no Tesouro Selic 2027</strong> (na aba Investir).</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ONDE COMPRAR -->
+  <div class="section">
+    <div class="section-title">Onde comprar cada ativo</div>
+    <div class="buy-grid">
+      <div class="buy-row">
+        <div class="buy-product"><span class="buy-product-dot" style="background:#FFCC22"></span><span class="buy-product-name">CDB Liquidez Diária</span></div>
+        <div class="buy-platforms"><span class="buy-plat buy-plat-1">Nubank</span><span class="buy-plat buy-plat-2">Inter</span><span class="buy-plat buy-plat-3">C6 Bank</span></div>
+      </div>
+      <div class="buy-row">
+        <div class="buy-product"><span class="buy-product-dot" style="background:#00CCFF"></span><span class="buy-product-name">Tesouro Selic 2027</span></div>
+        <div class="buy-platforms"><span class="buy-plat buy-plat-1">Nubank</span><span class="buy-plat buy-plat-2">XP Investimentos</span><span class="buy-plat buy-plat-3">Inter</span></div>
+      </div>
+    </div>
+    <div class="buy-note">
+      <strong>Por que tudo no Nubank?</strong> Para o seu caso (iniciante, valor mensal pequeno, foco em simplicidade), o Nubank é imbatível: <em>tem os dois produtos no mesmo app</em>, interface intuitiva, sem taxa, sem mínimo. Quando seu patrimônio crescer (acima de R$ 20k), faz sentido considerar a XP por ter produtos mais variados.
+    </div>
+  </div>
+
+  <!-- POR QUE NÃO -->
+  <div class="section">
+    <div class="section-title">Por que descartamos outros produtos</div>
+    <div class="exp-wrap">
+
+      <div class="exp-item" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <span class="exp-arrow">▶</span>
+          <div style="display:flex;align-items:center;gap:24px;flex:1;">
+            <div style="min-width:200px;font-size:13px;font-weight:600;color:var(--text-primary);">LCI / LCA (renda fixa isenta)</div>
+            <div style="font-size:12px;color:var(--text-secondary);">Tem carência mínima de <strong>90 dias a 12 meses</strong>. Não combina com seu horizonte curto.</div>
+          </div>
+        </div>
+        <div class="exp-body">
+          <p>LCI/LCA são excelentes (isentas de IR, render 95–97% do CDI), mas exigem que você deixe o dinheiro "preso" por um período. Se você precisar resgatar no meio, <em>simplesmente não consegue</em>. <span class="hi">Quando seu horizonte aumentar para 2+ anos</span>, LCI/LCA entram na carteira.</p>
+        </div>
+      </div>
+
+      <div class="exp-item" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <span class="exp-arrow">▶</span>
+          <div style="display:flex;align-items:center;gap:24px;flex:1;">
+            <div style="min-width:200px;font-size:13px;font-weight:600;color:var(--text-primary);">Tesouro IPCA+ ou Prefixado</div>
+            <div style="font-size:12px;color:var(--text-secondary);">Oscila de preço. Se vender antes do vencimento, pode <strong>perder dinheiro</strong>.</div>
+          </div>
+        </div>
+        <div class="exp-body">
+          <p>Diferente do Tesouro Selic, o IPCA+ e o Prefixado têm <em>marcação a mercado</em>. Se a Selic subir depois que você comprou, o preço cai. Para quem pode precisar do dinheiro em meses, esse risco é <strong>inaceitável</strong>. <span class="hi">Voltam à carteira quando o horizonte for 3+ anos</span>.</p>
+        </div>
+      </div>
+
+      <div class="exp-item" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <span class="exp-arrow">▶</span>
+          <div style="display:flex;align-items:center;gap:24px;flex:1;">
+            <div style="min-width:200px;font-size:13px;font-weight:600;color:var(--text-primary);">Ações, FIIs, ETFs</div>
+            <div style="font-size:12px;color:var(--text-secondary);">Renda variável. <strong>Quedas de 20–40%</strong> são normais. Não para curto prazo.</div>
+          </div>
+        </div>
+        <div class="exp-body">
+          <p>Renda variável é excelente para <em>horizontes longos</em> (5+ anos). Em prazos curtos, é uma loteria — você pode tanto ganhar 30% quanto perder 30%. Para preservar patrimônio em menos de 1 ano, <strong>está fora de questão</strong>. <span class="hi">Quando seu horizonte for 5+ anos</span>, conversamos sobre FIIs e ETFs.</p>
+        </div>
+      </div>
+
+      <div class="exp-item" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <span class="exp-arrow">▶</span>
+          <div style="display:flex;align-items:center;gap:24px;flex:1;">
+            <div style="min-width:200px;font-size:13px;font-weight:600;color:var(--text-primary);">PGBL (previdência)</div>
+            <div style="font-size:12px;color:var(--text-secondary);">Você declara IR completo (poderia usar). Mas precisa de <strong>10+ anos</strong> para valer.</div>
+          </div>
+        </div>
+        <div class="exp-body">
+          <p>O PGBL faria sentido para você (declaração completa, pode deduzir até 12% da renda bruta). Mas para colher o benefício máximo, precisa ficar <strong>10 anos investido</strong>. Resgatar antes paga até 35% de IR sobre o total. <span class="hi">Quando seu horizonte se estender e a reserva estiver completa</span>, vamos avaliar.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TRIGGERS -->
+  <div class="section">
+    <div class="section-title">Quando revisitar essa carteira</div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">→</div>
+        <div class="step-title-c">Seu horizonte aumentar para 2+ anos</div>
+        <div class="step-text">Incluir <strong>LCI/LCA</strong> (isenta de IR, rende mais que CDB) e <strong>Tesouro IPCA+</strong> para proteção contra inflação.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">→</div>
+        <div class="step-title-c">Patrimônio chegar a R$ 20.000</div>
+        <div class="step-text">Migrar parte para <strong>XP Investimentos</strong> e diversificar entre mais bancos (CDBs em diferentes emissores, sempre dentro do limite do FGC).</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">→</div>
+        <div class="step-title-c">Reserva completa + horizonte 5+ anos</div>
+        <div class="step-text">Começar com <strong>1–2 FIIs</strong> de tijolo e <strong>ETF IVVB11</strong> (S&amp;P 500) — primeiro passo em renda variável com risco controlado.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REFERÊNCIAS -->
+  <div class="section">
+    <div class="section-title">Para aprender mais</div>
+    <div class="refs-grid">
+      <div class="ref-card">
+        <div class="ref-source">Tesouro Direto</div>
+        <div class="ref-link"><a href="https://www.tesourodireto.com.br" target="_blank">tesourodireto.com.br</a></div>
+        <div class="ref-desc">Simulador oficial e explicação dos títulos</div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-source">FGC</div>
+        <div class="ref-link"><a href="https://www.fgc.org.br" target="_blank">fgc.org.br</a></div>
+        <div class="ref-desc">Como funciona a garantia bancária</div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-source">Banco Central</div>
+        <div class="ref-link"><a href="https://www.bcb.gov.br" target="_blank">bcb.gov.br</a></div>
+        <div class="ref-desc">Selic atualizada e indicadores oficiais</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div>
+    <div class="footer-brand">Julia Braga Martins</div>
+    <div>Economista · Consultora Financeira · w.juliabm@gmail.com</div>
+  </div>
+  <div class="footer-right">
+    <div>Relatório confidencial, destinado exclusivamente a Luiz Henrique Teixeira.</div>
+    <div>Não constitui oferta de valores mobiliários. Rentabilidade passada não garante resultados futuros.</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+function toggleExp(el) { el.classList.toggle('open'); }
+
+Chart.defaults.color = '#AAAAAA';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+
+new Chart(document.getElementById('pieChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['CDB Liquidez Diária','Tesouro Selic 2027'],
+    datasets: [{
+      data: [70, 30],
+      backgroundColor: ['#FFCC22','#00CCFF'],
+      borderWidth: 0
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '65%',
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed + '%' }}
+    }
+  }
+});
+
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: ['CDB Liquidez Diária','Tesouro Selic 2027'],
+    datasets: [{
+      data: [11.0, 11.0],
+      backgroundColor: ['#FFCC22','#00CCFF'],
+      borderRadius: 4, borderSkipped: false
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.parsed.x.toFixed(1) + '% a.a. líquido de IR' }}
+    },
+    scales: {
+      x: { min: 8, max: 13, ticks: { callback: v => v + '%', font: { size: 11 }, color: '#CCCCCC' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+      y: { ticks: { font: { size: 11 }, color: '#CCCCCC' }, grid: { display: false } }
+    }
+  }
+});
+</script>
+</body>
+</html>
