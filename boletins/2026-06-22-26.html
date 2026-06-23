@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boletim Semanal · Julia Braga Martins</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root {
+    --bg: #0D1117;
+    --bg-card: #1A1F2E;
+    --bg-card-2: #242B3D;
+    --bg-header: #060A11;
+    --bg-mid: #1E2433;
+    --text: #F0F0EA;
+    --text-sec: #9CA3AF;
+    --text-mut: #6B7280;
+    --accent: #AAFF57;
+    --accent-dk: #88DD33;
+    --border: #2A3142;
+    --green-soft: rgba(170,255,87,0.12);
+    --amber: #FBBF24;
+    --amber-soft: rgba(251,191,36,0.12);
+    --red: #FF6B9D;
+    --red-soft: rgba(255,107,157,0.12);
+    --blue: #60A5FA;
+    --blue-soft: rgba(96,165,250,0.12);
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+    background: var(--bg); color: var(--text); font-size: 13px; line-height: 1.6;
+  }
+
+  .container { max-width: 820px; margin: 0 auto; }
+
+  /* HEADER */
+  .header { background: var(--bg-header); padding: 32px 44px 28px; border-bottom: 1px solid var(--border); }
+  .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand-logo { width: 44px; height: 44px; background: var(--accent); color: var(--bg); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Cambria', serif; font-weight: 800; font-size: 22px; }
+  .brand-name { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 2px; }
+  .brand-sub { font-size: 11px; color: var(--text-mut); }
+  .header-meta { text-align: right; }
+  .edition { font-size: 11px; color: var(--accent); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
+  .week-range { font-size: 13px; color: var(--text); font-weight: 500; }
+
+  .header-title { font-size: 32px; font-weight: 700; color: var(--text); margin: 8px 0 4px; line-height: 1.15; font-family: 'Cambria', serif; }
+  .header-title .accent { color: var(--accent); }
+  .header-subtitle { font-size: 13px; color: var(--text-sec); font-style: italic; }
+
+  /* BODY */
+  .body { padding: 30px 44px 40px; }
+  .section { margin-bottom: 32px; }
+  .section-title {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--text-sec); margin-bottom: 14px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px;
+  }
+  .section-title::before { content:''; display:inline-block; width:3px; height:12px; background:var(--accent); border-radius:2px; }
+
+  /* RESUMO EXECUTIVO */
+  .summary {
+    background: var(--green-soft); border: 1px solid rgba(170,255,87,0.25);
+    border-radius: 12px; padding: 18px 22px;
+  }
+  .summary-label { font-size: 10px; font-weight: 700; color: var(--accent); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px; }
+  .summary-text { font-size: 14px; color: var(--text); line-height: 1.7; }
+  .summary-text strong { color: var(--accent); font-weight: 600; }
+
+  /* INDICADORES GRID */
+  .indicators { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .ind-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .ind-label { font-size: 9px; font-weight: 700; color: var(--text-mut); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
+  .ind-value { font-size: 22px; font-weight: 700; color: var(--text); font-family: 'Cambria', serif; margin-bottom: 4px; }
+  .ind-value.accent { color: var(--accent); }
+  .ind-change { font-size: 11px; display: flex; align-items: center; gap: 4px; }
+  .ind-change.up { color: var(--accent); }
+  .ind-change.down { color: var(--red); }
+  .ind-change.flat { color: var(--text-mut); }
+  .ind-note { font-size: 10px; color: var(--text-mut); margin-top: 3px; }
+
+  /* FOCUS TABLE */
+  .focus-table-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .focus-table { width: 100%; border-collapse: collapse; }
+  .focus-table th { background: var(--bg-mid); padding: 10px 16px; font-size: 9px; font-weight: 700; color: var(--text-sec); text-transform: uppercase; letter-spacing: .08em; border-bottom: 1px solid var(--border); }
+  .focus-table th:first-child { text-align: left; }
+  .focus-table th:not(:first-child) { text-align: right; }
+  .focus-table td { padding: 12px 16px; font-size: 12px; border-bottom: 1px solid var(--border); }
+  .focus-table td:first-child { color: var(--text); font-weight: 600; }
+  .focus-table td:not(:first-child) { text-align: right; color: var(--text-sec); font-variant-numeric: tabular-nums; }
+  .focus-table tr:last-child td { border-bottom: none; }
+  .focus-table tr:hover td { background: rgba(170,255,87,0.03); }
+  .delta-up { color: var(--accent); font-weight: 600; }
+  .delta-down { color: var(--red); font-weight: 600; }
+  .delta-flat { color: var(--text-mut); }
+
+  /* WEEK SUMMARY (passada/próxima) */
+  .week-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .week-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+  .week-card-title { font-size: 10px; font-weight: 700; color: var(--accent); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 12px; }
+  .week-events { list-style: none; }
+  .week-events li { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text); display: flex; gap: 10px; align-items: flex-start; }
+  .week-events li:last-child { border-bottom: none; }
+  .ev-date { color: var(--accent); font-weight: 600; min-width: 56px; font-size: 11px; }
+  .ev-text { color: var(--text-sec); line-height: 1.5; }
+
+  /* TESE */
+  .tese-card { background: var(--bg-card-2); border: 1px solid var(--border); border-radius: 12px; padding: 24px 28px; position: relative; }
+  .tese-mark { position: absolute; top: 10px; left: 18px; font-size: 56px; line-height: 1; color: var(--accent); font-family: 'Cambria', serif; font-weight: 700; opacity: 0.6; }
+  .tese-text { padding-left: 36px; font-size: 17px; font-style: italic; color: var(--text); line-height: 1.6; font-family: 'Cambria', serif; }
+  .tese-text strong { color: var(--accent); font-style: normal; }
+  .tese-sig { padding-left: 36px; font-size: 11px; color: var(--text-mut); margin-top: 12px; }
+
+  /* IMPACTO */
+  .impact-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .impact-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .impact-icon { font-size: 18px; margin-bottom: 6px; }
+  .impact-label { font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .impact-text { font-size: 11px; color: var(--text-sec); line-height: 1.5; }
+  .impact-pos { border-color: rgba(170,255,87,0.3); }
+  .impact-pos .impact-label { color: var(--accent); }
+  .impact-neg { border-color: rgba(255,107,157,0.3); }
+  .impact-neg .impact-label { color: var(--red); }
+  .impact-neu { border-color: rgba(96,165,250,0.3); }
+  .impact-neu .impact-label { color: var(--blue); }
+
+  /* FOOTER */
+  .footer {
+    background: var(--bg-header); color: var(--text-mut); padding: 22px 44px;
+    text-align: center; font-size: 11px; border-top: 1px solid var(--border);
+  }
+  .footer-brand { color: var(--accent); font-weight: 700; font-size: 12px; margin-bottom: 4px; }
+  .footer-disclaimer { font-size: 10px; color: var(--text-mut); margin-top: 8px; font-style: italic; }
+
+  /* MOBILE */
+  @media (max-width: 700px) {
+    .header { padding: 20px 18px; }
+    .header-top { flex-direction: column; align-items: flex-start; gap: 14px; }
+    .header-meta { text-align: left; }
+    .header-title { font-size: 24px; }
+    .body { padding: 22px 18px 28px; }
+    .indicators { grid-template-columns: 1fr 1fr; }
+    .ind-value { font-size: 18px; }
+    .focus-table th, .focus-table td { padding: 9px 10px; font-size: 11px; }
+    .focus-table th { font-size: 8px; }
+    .week-grid { grid-template-columns: 1fr; }
+    .impact-grid { grid-template-columns: 1fr; }
+    .tese-text { font-size: 15px; padding-left: 28px; }
+    .tese-mark { font-size: 44px; }
+    .footer { padding: 18px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-top">
+      <div class="brand">
+        <div class="brand-logo">J</div>
+        <div>
+          <div class="brand-name">Julia Braga Martins</div>
+          <div class="brand-sub">Economista · Consultora Financeira</div>
+        </div>
+      </div>
+      <div class="header-meta">
+        <div class="edition">Boletim Semanal · Ed. #1</div>
+        <div class="week-range">22 – 26 de Junho de 2026</div>
+      </div>
+    </div>
+    <div class="header-title">Cenário <span class="accent">Macro</span> da Semana</div>
+    <div class="header-subtitle">O que aconteceu, o que vem aí e como isso afeta sua carteira</div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <!-- RESUMO EXECUTIVO -->
+    <div class="section">
+      <div class="summary">
+        <div class="summary-label">⚡ Resumo da semana</div>
+        <div class="summary-text">
+          O Banco Central reforçou o tom <strong>hawkish</strong> sobre a Selic, mantida em <strong>14,25%</strong>. O Boletim Focus elevou a projeção de IPCA 2026 para próximo de <strong>5,0%</strong>, acima da meta. A curva DI já precifica <strong>Selic terminal de 14,75–15,00%</strong> no fim do ano. Para o investidor: <strong>janela rara</strong> para travar IPCA+7% real antes do ciclo de cortes começar.
+        </div>
+      </div>
+    </div>
+
+    <!-- INDICADORES PRINCIPAIS -->
+    <div class="section">
+      <div class="section-title">Indicadores Principais</div>
+      <div class="indicators">
+        <div class="ind-card">
+          <div class="ind-label">Selic</div>
+          <div class="ind-value accent">14,25%</div>
+          <div class="ind-change flat">→ Mantida no Copom</div>
+        </div>
+        <div class="ind-card">
+          <div class="ind-label">IPCA 12 meses</div>
+          <div class="ind-value">4,72%</div>
+          <div class="ind-change up">↑ +0,12 pp na semana</div>
+        </div>
+        <div class="ind-card">
+          <div class="ind-label">Câmbio USD/BRL</div>
+          <div class="ind-value">R$ 5,87</div>
+          <div class="ind-change up">↑ +1,4% na semana</div>
+        </div>
+        <div class="ind-card">
+          <div class="ind-label">Ibovespa</div>
+          <div class="ind-value">128.450</div>
+          <div class="ind-change down">↓ -2,1% na semana</div>
+        </div>
+        <div class="ind-card">
+          <div class="ind-label">NTN-B 2035</div>
+          <div class="ind-value">7,28%</div>
+          <div class="ind-change up">↑ Real subindo</div>
+        </div>
+        <div class="ind-card">
+          <div class="ind-label">CDS Brasil 5Y</div>
+          <div class="ind-value">198 bps</div>
+          <div class="ind-change up">↑ Risco fiscal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOCUS TABLE -->
+    <div class="section">
+      <div class="section-title">Expectativas Focus · variação semanal</div>
+      <div class="focus-table-wrap">
+        <table class="focus-table">
+          <thead>
+            <tr>
+              <th>Indicador</th>
+              <th>Semana anterior</th>
+              <th>Esta semana</th>
+              <th>Variação</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>IPCA 2026</td>
+              <td>4,88%</td>
+              <td>4,95%</td>
+              <td><span class="delta-up">↑ +0,07 pp</span></td>
+            </tr>
+            <tr>
+              <td>IPCA 2027</td>
+              <td>4,15%</td>
+              <td>4,28%</td>
+              <td><span class="delta-up">↑ +0,13 pp</span></td>
+            </tr>
+            <tr>
+              <td>Selic fim 2026</td>
+              <td>14,00%</td>
+              <td>14,25%</td>
+              <td><span class="delta-up">↑ +0,25 pp</span></td>
+            </tr>
+            <tr>
+              <td>Selic fim 2027</td>
+              <td>12,75%</td>
+              <td>13,00%</td>
+              <td><span class="delta-up">↑ +0,25 pp</span></td>
+            </tr>
+            <tr>
+              <td>PIB 2026</td>
+              <td>2,1%</td>
+              <td>2,0%</td>
+              <td><span class="delta-down">↓ -0,1 pp</span></td>
+            </tr>
+            <tr>
+              <td>Câmbio fim 2026</td>
+              <td>R$ 5,75</td>
+              <td>R$ 5,85</td>
+              <td><span class="delta-up">↑ Real mais fraco</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- EVENTOS -->
+    <div class="section">
+      <div class="section-title">A semana em eventos</div>
+      <div class="week-grid">
+        <div class="week-card">
+          <div class="week-card-title">📅 O que aconteceu</div>
+          <ul class="week-events">
+            <li>
+              <span class="ev-date">SEG</span>
+              <span class="ev-text"><strong>Focus</strong>: IPCA 2026 sobe para 4,95% (5ª semana consecutiva de alta)</span>
+            </li>
+            <li>
+              <span class="ev-date">TER</span>
+              <span class="ev-text"><strong>Ata do Copom</strong>: BC reafirma tom hawkish, descarta corte no curto prazo</span>
+            </li>
+            <li>
+              <span class="ev-date">QUA</span>
+              <span class="ev-text"><strong>EUA</strong>: Powell sinaliza juros altos por mais tempo · DXY +0,8%</span>
+            </li>
+            <li>
+              <span class="ev-date">QUI</span>
+              <span class="ev-text"><strong>BR</strong>: Confiança do consumidor (FGV) recua 1,2 pt</span>
+            </li>
+            <li>
+              <span class="ev-date">SEX</span>
+              <span class="ev-text"><strong>NTN-B 2035</strong> rompe 7,25% pela primeira vez em 2 meses</span>
+            </li>
+          </ul>
+        </div>
+        <div class="week-card">
+          <div class="week-card-title">🔮 O que vem aí</div>
+          <ul class="week-events">
+            <li>
+              <span class="ev-date">SEG</span>
+              <span class="ev-text"><strong>Focus</strong> · observar mediana IPCA 2027 e Selic terminal</span>
+            </li>
+            <li>
+              <span class="ev-date">TER</span>
+              <span class="ev-text"><strong>EUA</strong>: PMI Industrial + Consumer Confidence</span>
+            </li>
+            <li>
+              <span class="ev-date">QUI</span>
+              <span class="ev-text"><strong>BR</strong>: IPCA-15 de junho (IBGE) — prévia da inflação</span>
+            </li>
+            <li>
+              <span class="ev-date">QUI</span>
+              <span class="ev-text"><strong>EUA</strong>: PCE Core (medida preferida do Fed)</span>
+            </li>
+            <li>
+              <span class="ev-date">SEX</span>
+              <span class="ev-text"><strong>BR</strong>: Resultado fiscal de maio (Tesouro)</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMPACTO NA CARTEIRA -->
+    <div class="section">
+      <div class="section-title">Impacto na carteira</div>
+      <div class="impact-grid">
+        <div class="impact-card impact-pos">
+          <div class="impact-icon">📈</div>
+          <div class="impact-label">SE BENEFICIA</div>
+          <div class="impact-text">CDB pós-fixado · LCI/LCA · Tesouro Selic · CRI tokenizado (Zuvia) · IVVB11 (hedge cambial)</div>
+        </div>
+        <div class="impact-card impact-neu">
+          <div class="impact-icon">⚖️</div>
+          <div class="impact-label">NEUTRO</div>
+          <div class="impact-text">Tesouro IPCA+ curto · FIIs de papel · ETFs internacionais · multimercados defensivos</div>
+        </div>
+        <div class="impact-card impact-neg">
+          <div class="impact-icon">📉</div>
+          <div class="impact-label">SOFRE</div>
+          <div class="impact-text">Tesouro Prefixado longo · FIIs de tijolo · Ibovespa (cíclicas) · ações de varejo</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TESE DA SEMANA -->
+    <div class="section">
+      <div class="section-title">Tese da semana</div>
+      <div class="tese-card">
+        <div class="tese-mark">"</div>
+        <div class="tese-text">
+          Travar <strong>taxa real alta agora</strong>, antes do ciclo de cortes começar — porque ele <strong>vai</strong> começar, é só questão de quando. CRI tokenizado pagando <strong>IPCA+7% líquido</strong> equivale a um CDB pagando <strong>IPCA+9% bruto</strong>.
+        </div>
+        <div class="tese-sig">— Análise macro semanal · Ed. #1</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-brand">Julia Braga Martins · Economista</div>
+    <div>Quer receber esse boletim toda semana? Me chama no LinkedIn.</div>
+    <div class="footer-disclaimer">Este conteúdo é meramente informativo e não constitui recomendação de investimento. Os dados são estimativas baseadas em fontes públicas e podem sofrer revisão.</div>
+  </div>
+
+</div>
+
+</body>
+</html>
