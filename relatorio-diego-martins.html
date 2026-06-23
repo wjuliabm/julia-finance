@@ -176,8 +176,20 @@
     .profile-grid { grid-template-columns: 1fr; }
     .charts-grid { grid-template-columns: 1fr; }
     .chart-card { padding: 18px 16px; }
-    .table-wrap { overflow-x: auto !important; overflow-y: visible !important; -webkit-overflow-scrolling: touch; }
-    .asset-table { min-width: 600px; }
+    /* TABELA → CARDS no mobile */
+    .table-wrap { overflow: visible !important; background: transparent; border: none; }
+    .asset-table { display: block; width: 100%; min-width: 0 !important; }
+    .asset-table thead { display: none; }
+    .asset-table tbody { display: block; }
+    .asset-table tr { display: block; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; padding: 16px 18px; }
+    .asset-table tr:hover td { background: transparent !important; }
+    .asset-table td { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border: none !important; font-size: 12px; text-align: left !important; gap: 12px; }
+    .asset-table td:first-child { display: block; border-bottom: 1px solid var(--border) !important; padding-bottom: 10px; margin-bottom: 6px; }
+    .asset-table td:not(:first-child)::before { content: attr(data-label); color: var(--text-muted); font-weight: 700; font-size: 9.5px; text-transform: uppercase; letter-spacing: .06em; flex-shrink: 0; }
+    .table-footer { background: var(--bg-mid); border: 1px solid var(--border); border-radius: 10px; margin-top: 8px; }
+    /* TOOLTIPS sempre visíveis no mobile */
+    .tip-wrap { border-bottom: none; cursor: default; display: block; }
+    .tip-box { display: block !important; position: static !important; width: 100% !important; margin-top: 8px; box-shadow: none; background: var(--bg-mid); border: 1px solid var(--border); pointer-events: auto; font-size: 11.5px; padding: 12px 14px; }
     .buy-row { grid-template-columns: 1fr; }
     .buy-product { border-right: none; border-bottom: 1px solid var(--border); }
     .steps-grid { grid-template-columns: 1fr; gap: 18px; }
@@ -734,6 +746,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 function toggleExp(el) { el.classList.toggle('open'); }
+
+document.querySelectorAll('.asset-table').forEach(table => {
+  const headers = [...table.querySelectorAll('th')].map(th => th.textContent.trim());
+  table.querySelectorAll('tbody tr').forEach(tr => {
+    tr.querySelectorAll('td').forEach((td, i) => {
+      if (headers[i]) td.setAttribute('data-label', headers[i]);
+    });
+  });
+});
 
 Chart.defaults.color = '#AAAAAA';
 Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
