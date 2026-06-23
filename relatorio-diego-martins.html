@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório de Carteira — Diego Martins</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg-page: #111111; --bg-card: #1A1A1A; --bg-card-2: #1E1E1E;
+    --bg-header: #0D0D0D; --bg-mid: #222222;
+    --text-primary: #E8E8E4; --text-secondary: #AAAAAA; --text-muted: #777777;
+    --accent: #AAFF57; --accent-mid: #88DD33;
+    --border: #2A2A2A;
+    --green-soft: rgba(170,255,87,0.12); --green-text: #AAFF57;
+    --amber-soft: rgba(255,204,34,0.12); --amber-text: #FFCC22;
+    --red-soft: rgba(255,102,170,0.12); --red-text: #FF66AA;
+    --blue-soft: rgba(96,165,250,0.12); --blue-text: #60A5FA;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+    background: var(--bg-page); color: var(--text-primary); font-size: 13px; line-height: 1.6;
+  }
+
+  .header { background: var(--bg-header); padding: 40px 52px 36px; border-bottom: 1px solid var(--border); }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; }
+  .brand-name { font-size: 12px; font-weight: 600; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 4px; }
+  .brand-sub { font-size: 11px; color: var(--text-muted); }
+  .report-meta { text-align: right; }
+  .report-date { font-size: 13px; color: var(--text-primary); font-weight: 500; margin-bottom: 2px; }
+  .report-conf { font-size: 11px; color: var(--text-muted); }
+  .header-title { font-size: 36px; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 6px; line-height: 1.1; }
+  .header-accent { color: var(--accent); }
+  .header-subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 32px; }
+  .divider-line { width: 48px; height: 2px; background: var(--accent); margin-bottom: 32px; }
+  .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .metric-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; }
+  .metric-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.09em; color: var(--text-muted); margin-bottom: 8px; }
+  .metric-value { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+  .metric-value.green { color: var(--accent); }
+  .metric-value.sm { font-size: 17px; }
+
+  .body { padding: 36px 52px 40px; }
+  .section { margin-bottom: 36px; }
+  .section-title {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--text-secondary); margin-bottom: 14px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::before { content:''; display:inline-block; width:3px; height:12px; background:var(--accent); border-radius:2px; }
+
+  .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .profile-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+  .profile-item-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin-bottom: 4px; }
+  .profile-item-value { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+
+  .welcome-card { background: var(--green-soft); border: 1px solid rgba(170,255,87,0.25); border-radius: 12px; padding: 22px 26px; margin-bottom: 16px; }
+  .welcome-card h3 { font-size: 17px; color: var(--accent); margin-bottom: 10px; font-weight: 700; }
+  .welcome-card p { font-size: 13px; color: var(--text-primary); line-height: 1.75; }
+  .welcome-card strong { color: var(--accent); }
+
+  .alert-box { background: var(--amber-soft); border: 1px solid rgba(255,204,34,0.25); border-radius: 10px; padding: 16px 20px; margin-bottom: 12px; display: flex; align-items: flex-start; gap: 14px; }
+  .alert-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .alert-text { font-size: 13px; color: var(--text-primary); line-height: 1.6; }
+  .alert-text strong { color: var(--amber-text); }
+
+  .alert-blue { background: var(--blue-soft); border-color: rgba(96,165,250,0.3); }
+  .alert-blue .alert-text strong { color: var(--blue-text); }
+
+  .chart-card { background: var(--bg-card-2); border: 1px solid var(--border); border-radius: 12px; padding: 22px 24px; }
+  .chart-card-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .charts-grid { display: grid; grid-template-columns: 320px 1fr; gap: 16px; }
+
+  .legend { display: flex; flex-direction: column; gap: 7px; margin-top: 14px; }
+  .legend-item { display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
+  .legend-left { display: flex; align-items: center; gap: 8px; }
+  .legend-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+  .legend-name { color: #CCCCCC; }
+  .legend-right { display: flex; gap: 14px; }
+  .legend-pct { font-weight: 700; color: #EEEEEE; min-width: 32px; text-align: right; }
+  .legend-val { color: var(--text-muted); min-width: 70px; text-align: right; }
+
+  .tip-wrap { position: relative; display: inline; cursor: help; border-bottom: 1px dotted var(--accent); }
+  .tip-box { display: none; position: absolute; bottom: calc(100% + 10px); left: 0; background: #0A0A0A; color: #E0E0E0; border: 1px solid #3A3A3A; border-radius: 10px; padding: 14px 16px; width: 340px; font-size: 12px; line-height: 1.6; z-index: 1000; box-shadow: 0 8px 28px rgba(0,0,0,.7); pointer-events: none; }
+  .tip-box strong { color: var(--accent); }
+  .tip-wrap:hover .tip-box { display: block; }
+  .tip-flip .tip-box { bottom: auto; top: calc(100% + 10px); }
+
+  .table-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; }
+  .asset-table { width: 100%; border-collapse: collapse; }
+  .asset-table th { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); text-align: left; padding: 10px 14px; background: var(--bg-mid); border-bottom: 1px solid var(--border); }
+  .asset-table th:first-child { border-radius: 12px 0 0 0; }
+  .asset-table th:last-child { border-radius: 0 12px 0 0; }
+  .asset-table th:not(:first-child) { text-align: right; }
+  .asset-table td { padding: 14px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .asset-table tr:last-child td { border-bottom: none; }
+  .asset-table tr:hover td { background: rgba(170,255,87,0.03); }
+  .asset-name { font-weight: 600; font-size: 13px; color: var(--text-primary); }
+  .asset-desc { font-size: 11px; color: var(--text-secondary); margin-top: 3px; }
+  .td-right { text-align: right; }
+  .badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 20px; }
+  .badge-isento { background: var(--green-soft); color: var(--green-text); }
+  .badge-ir { background: var(--amber-soft); color: var(--amber-text); }
+  .badge-rv { background: var(--blue-soft); color: var(--blue-text); }
+  .net-return { font-weight: 700; color: var(--accent); font-size: 14px; }
+  .table-footer { padding: 10px 14px; background: var(--bg-mid); border-top: 1px solid var(--border); font-size: 10px; color: var(--text-muted); font-style: italic; border-radius: 0 0 12px 12px; }
+
+  .exp-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .exp-item { border-bottom: 1px solid var(--border); }
+  .exp-item:last-child { border-bottom: none; }
+  .exp-header { display: flex; align-items: center; gap: 12px; padding: 14px 20px; cursor: pointer; user-select: none; transition: background .15s; }
+  .exp-header:hover { background: rgba(170,255,87,0.04); }
+  .exp-arrow { font-size: 11px; color: var(--text-muted); transition: transform .25s; flex-shrink: 0; }
+  .exp-item.open .exp-arrow { transform: rotate(90deg); }
+  .exp-body { max-height: 0; overflow: hidden; transition: max-height .35s ease, padding .35s ease; padding: 0 20px; font-size: 12px; color: var(--text-secondary); line-height: 1.7; }
+  .exp-item.open .exp-body { max-height: 500px; padding: 0 20px 18px; }
+  .exp-source { margin-top: 8px; font-size: 11px; }
+  .exp-source a { color: var(--accent); text-decoration: none; }
+  .hi { color: var(--accent); font-weight: 600; }
+
+  .buy-grid { display: flex; flex-direction: column; gap: 8px; }
+  .buy-row { display: grid; grid-template-columns: 240px 1fr; gap: 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .buy-product { padding: 12px 16px; display: flex; align-items: center; gap: 10px; border-right: 1px solid var(--border); background: var(--bg-mid); }
+  .buy-product-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+  .buy-product-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+  .buy-platforms { padding: 12px 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .buy-plat { font-size: 11px; padding: 4px 10px; border-radius: 6px; font-weight: 600; }
+  .buy-plat-1 { background: var(--accent); color: #111; }
+  .buy-plat-2 { background: #2A2A2A; color: #CCC; border: 1px solid #3A3A3A; }
+  .buy-plat-3 { background: #2A2A2A; color: #999; border: 1px solid #333; }
+  .buy-note { margin-top: 12px; padding: 14px 18px; background: var(--green-soft); border: 1px solid rgba(170,255,87,0.2); border-radius: 10px; font-size: 12px; color: var(--text-primary); line-height: 1.6; }
+  .buy-note strong { color: var(--accent); }
+
+  .steps-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .step-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; position: relative; }
+  .step-num { position: absolute; top: -10px; left: 18px; background: var(--accent); color: #111; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; }
+  .step-title-c { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-top: 6px; margin-bottom: 8px; }
+  .step-text { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+  .step-text strong { color: var(--accent); }
+
+  .income-card { background: var(--bg-card-2); border: 1px solid var(--border); border-radius: 12px; padding: 24px 28px; margin-bottom: 16px; }
+  .income-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin-bottom: 16px; }
+  .income-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .income-item { text-align: center; padding: 16px 10px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border); }
+  .income-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600; }
+  .income-value { font-size: 22px; font-weight: 700; color: var(--accent); font-family: 'Cambria', serif; }
+  .income-period { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+
+  .renda-card { background: var(--green-soft); border: 1px solid rgba(170,255,87,0.25); border-radius: 12px; padding: 24px 28px; }
+  .renda-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; align-items: center; }
+  .renda-item { text-align: center; }
+  .renda-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+  .renda-value { font-size: 28px; font-weight: 700; color: var(--accent); font-family: 'Cambria', serif; }
+  .renda-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+  .refs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .ref-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .ref-source { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin-bottom: 4px; }
+  .ref-link { font-size: 12px; }
+  .ref-link a { color: var(--accent); text-decoration: none; }
+  .ref-desc { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+  .footer { background: var(--bg-header); color: var(--text-muted); padding: 22px 52px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; gap: 24px; border-top: 1px solid var(--border); }
+  .footer-brand { color: var(--accent); font-weight: 600; font-size: 12px; margin-bottom: 3px; }
+  .footer-right { text-align: right; line-height: 1.7; }
+
+  @media (max-width: 700px) {
+    .header { padding: 24px 18px 22px; }
+    .header-title { font-size: 26px; }
+    .header-subtitle { font-size: 12px; margin-bottom: 22px; }
+    .metrics-row { grid-template-columns: 1fr 1fr; }
+    .metric-value { font-size: 18px; }
+    .metric-value.sm { font-size: 14px; }
+    .body { padding: 26px 16px 30px; }
+    .section { margin-bottom: 28px; }
+    .profile-grid { grid-template-columns: 1fr; }
+    .charts-grid { grid-template-columns: 1fr; }
+    .chart-card { padding: 18px 16px; }
+    .table-wrap { overflow-x: auto !important; overflow-y: visible !important; -webkit-overflow-scrolling: touch; }
+    .asset-table { min-width: 600px; }
+    .buy-row { grid-template-columns: 1fr; }
+    .buy-product { border-right: none; border-bottom: 1px solid var(--border); }
+    .steps-grid { grid-template-columns: 1fr; gap: 18px; }
+    .income-grid { grid-template-columns: 1fr 1fr; }
+    .renda-grid { grid-template-columns: 1fr; gap: 12px; }
+    .refs-grid { grid-template-columns: 1fr; }
+    .footer { flex-direction: column; align-items: flex-start; padding: 18px 18px; }
+    .footer-right { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="brand-name">Julia Braga Martins</div>
+      <div class="brand-sub">Economista · Consultora Financeira</div>
+    </div>
+    <div class="report-meta">
+      <div class="report-date">23 de Junho de 2026</div>
+      <div class="report-conf">Relatório Confidencial</div>
+    </div>
+  </div>
+  <div class="header-title">Relatório de <span class="header-accent">Carteira</span></div>
+  <div class="header-subtitle">Diego Martins · Perfil Moderado-Arrojado · R$ 100k inicial + R$ 10k/mês · Horizonte 10+ anos</div>
+  <div class="divider-line"></div>
+  <div class="metrics-row">
+    <div class="metric-card">
+      <div class="metric-label">Patrimônio inicial</div>
+      <div class="metric-value">R$ 100k</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Aporte mensal</div>
+      <div class="metric-value">R$ 10k</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Em 15 anos</div>
+      <div class="metric-value green">~R$ 4,1M</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Renda mensal projetada</div>
+      <div class="metric-value sm">~R$ 33k/mês</div>
+    </div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="body">
+
+  <!-- BOAS-VINDAS -->
+  <div class="section">
+    <div class="welcome-card">
+      <h3>👋 Bem-vindo, Diego!</h3>
+      <p>Você tem em mãos um cenário <strong>excepcional para construir patrimônio</strong>: capital inicial relevante, aportes mensais consistentes, mais de 10 anos de horizonte, reserva de emergência pronta e o objetivo claro de aposentadoria segura. Essa combinação permite uma estratégia que <strong>vai bem além do óbvio</strong> — usamos renda variável de forma inteligente, exposição internacional, FIIs gerando renda passiva crescente e ativos tokenizados (que você já conhece). O foco aqui não é "render mais que a Selic" — é <strong>multiplicar seu patrimônio em 4x nos próximos 15 anos</strong> e chegar à aposentadoria com renda mensal acima de R$ 30 mil.</p>
+    </div>
+  </div>
+
+  <!-- PERFIL -->
+  <div class="section">
+    <div class="section-title">Perfil do cliente</div>
+    <div class="profile-grid">
+      <div class="profile-item">
+        <div class="profile-item-label">Nome</div>
+        <div class="profile-item-value">Diego Martins</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Idade</div>
+        <div class="profile-item-value">45 – 54 anos</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Ocupação</div>
+        <div class="profile-item-value">Empresário</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Perfil de risco</div>
+        <div class="profile-item-value" style="color:var(--accent);">Moderado-Arrojado</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Objetivo principal</div>
+        <div class="profile-item-value">Aposentadoria segura</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Horizonte</div>
+        <div class="profile-item-value" style="color:var(--accent);">10+ anos · longuíssimo</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Reserva de emergência</div>
+        <div class="profile-item-value" style="color:var(--accent);">✓ Já tem separada</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Já investe em</div>
+        <div class="profile-item-value">ETFs · Cripto · Tokenizados</div>
+      </div>
+    </div>
+
+    <div class="alert-box alert-blue">
+      <div class="alert-icon">💡</div>
+      <div class="alert-text">
+        <strong>Observação importante sobre o perfil:</strong> você marcou experiência "Básica" mas já investe em <strong>ETFs, criptomoedas e ativos tokenizados</strong> — produtos sofisticados que exigem entendimento de mercado. Na prática, seu perfil real é <strong>intermediário-avançado</strong>. A carteira a seguir foi montada considerando essa realidade — você não está começando do zero, está otimizando.
+      </div>
+    </div>
+
+    <div class="alert-box">
+      <div class="alert-icon">📋</div>
+      <div class="alert-text">
+        <strong>Nota sobre IR e previdência:</strong> você declara IR pelo modelo simplificado, então o <strong>PGBL</strong> (com dedução de 12% da renda bruta) não é a melhor escolha. Em compensação, incluímos uma posição em <strong>VGBL</strong> — que ainda traz vantagens: ausência de come-cotas, tributação regressiva (10% após 10 anos) e sucessão sem inventário (essencial para você como empresário).
+      </div>
+    </div>
+  </div>
+
+  <!-- ALOCAÇÃO -->
+  <div class="section">
+    <div class="section-title">Alocação do capital inicial (R$ 100.000)</div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-card-title">Distribuição por classe</div>
+        <div style="position:relative;height:220px;">
+          <canvas id="pieChart"></canvas>
+        </div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-left"><span class="legend-dot" style="background:#33FFCC"></span><span class="legend-name">ETFs Brasil</span></div><div class="legend-right"><span class="legend-pct">25%</span><span class="legend-val">R$ 25.000</span></div></div>
+          <div class="legend-item"><div class="legend-left"><span class="legend-dot" style="background:#60A5FA"></span><span class="legend-name">ETFs Internacionais</span></div><div class="legend-right"><span class="legend-pct">20%</span><span class="legend-val">R$ 20.000</span></div></div>
+          <div class="legend-item"><div class="legend-left"><span class="legend-dot" style="background:#FF66AA"></span><span class="legend-name">Fundos Imobiliários</span></div><div class="legend-right"><span class="legend-pct">20%</span><span class="legend-val">R$ 20.000</span></div></div>
+          <div class="legend-item"><div class="legend-left"><span class="legend-dot" style="background:#AAFF57"></span><span class="legend-name">Tesouro IPCA+ Longo</span></div><div class="legend-right"><span class="legend-pct">15%</span><span class="legend-val">R$ 15.000</span></div></div>
+          <div class="legend-item"><div class="legend-left"><span class="legend-dot" style="background:#CC66FF"></span><span class="legend-name">CRI Tokenizado (Zuvia)</span></div><div class="legend-right"><span class="legend-pct">10%</span><span class="legend-val">R$ 10.000</span></div></div>
+          <div class="legend-item"><div class="legend-left"><span class="legend-dot" style="background:#FF8833"></span><span class="legend-name">VGBL (sucessão)</span></div><div class="legend-right"><span class="legend-pct">5%</span><span class="legend-val">R$ 5.000</span></div></div>
+          <div class="legend-item"><div class="legend-left"><span class="legend-dot" style="background:#FFCC22"></span><span class="legend-name">Cripto (BTC/ETH)</span></div><div class="legend-right"><span class="legend-pct">5%</span><span class="legend-val">R$ 5.000</span></div></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Rentabilidade líquida estimada por ativo (% a.a.)</div>
+        <div style="position:relative;height:320px;">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ATIVOS -->
+  <div class="section">
+    <div class="section-title">Detalhamento dos ativos</div>
+    <div class="table-wrap" style="overflow:visible;">
+      <table class="asset-table">
+        <thead>
+          <tr>
+            <th style="width:36%">Produto</th>
+            <th>Inicial</th>
+            <th>Rent. esperada</th>
+            <th>Tributação</th>
+            <th>Rent. líquida</th>
+            <th>Liquidez</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="asset-name">
+                <span class="tip-wrap">ETFs Brasil — BOVA11 + SMAL11
+                  <span class="tip-box">
+                    <strong>O que são?</strong> ETFs (Exchange Traded Funds) replicam índices automaticamente. <em>BOVA11</em> acompanha o Ibovespa (as maiores empresas do Brasil); <em>SMAL11</em> acompanha o índice de small caps (empresas menores com maior potencial de crescimento).<br><br>
+                    <strong>Por que essa combinação?</strong> 70% BOVA11 + 30% SMAL11. As small caps tendem a render mais no longo prazo, mas oscilam mais — para 10+ anos faz sentido.<br><br>
+                    <strong>IR:</strong> 15% sobre o lucro só quando vender. Sem come-cotas, sem IR semestral.<br><br>
+                    <strong>Custo:</strong> Taxa de administração de apenas 0,10–0,30% a.a.
+                  </span>
+                </span>
+              </div>
+              <div class="asset-desc">70% BOVA11 (Ibovespa) + 30% SMAL11 (small caps)</div>
+            </td>
+            <td class="td-right" style="font-weight:600;">R$ 25.000</td>
+            <td class="td-right">12–15%</td>
+            <td class="td-right"><span class="badge badge-rv">IR 15% venda</span></td>
+            <td class="td-right net-return">10–13%</td>
+            <td class="td-right" style="color:var(--text-secondary);">D+2</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="asset-name">
+                <span class="tip-wrap tip-flip">ETFs Internacionais — IVVB11 + WRLD11
+                  <span class="tip-box">
+                    <strong>O que são?</strong> ETFs com exposição global. <em>IVVB11</em> acompanha o S&amp;P 500 (500 maiores empresas dos EUA); <em>WRLD11</em> dá exposição a mercados globais (EUA + Europa + Ásia desenvolvida).<br><br>
+                    <strong>Vantagens estratégicas:</strong> diversificação geográfica (Brasil é só 1% do PIB mundial), exposição em dólar (proteção cambial natural), histórico de retornos consistentes acima de 10% a.a.<br><br>
+                    <strong>Para aposentadoria:</strong> essencial. Reduz risco país e captura crescimento de gigantes como Apple, Microsoft, Nvidia, Google.
+                  </span>
+                </span>
+              </div>
+              <div class="asset-desc">60% IVVB11 (S&amp;P 500) + 40% WRLD11 (global)</div>
+            </td>
+            <td class="td-right" style="font-weight:600;">R$ 20.000</td>
+            <td class="td-right">10–14%</td>
+            <td class="td-right"><span class="badge badge-rv">IR 15% venda</span></td>
+            <td class="td-right net-return">9–12%</td>
+            <td class="td-right" style="color:var(--text-secondary);">D+2</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="asset-name">
+                <span class="tip-wrap tip-flip">Fundos Imobiliários — 4 a 5 fundos
+                  <span class="tip-box">
+                    <strong>O que são?</strong> Fundos que investem em imóveis (galpões, shoppings, lajes corporativas, crédito imobiliário). Pagam <em>dividendos mensais isentos de IR</em>.<br><br>
+                    <strong>Sugestão de carteira:</strong> HGLG11 (galpões), MXRF11 (crédito), XPML11 (shoppings), VISC11 (shoppings), KNRI11 (renda corporativa).<br><br>
+                    <strong>Estratégia para aposentadoria:</strong> os dividendos mensais começam pequenos (~R$ 130/mês iniciais) mas <em>crescem todo ano</em>. Em 10 anos, essa posição estará gerando muito mais renda.<br><br>
+                    <strong>IR:</strong> dividendos 100% isentos · 20% sobre lucro na venda de cotas.
+                  </span>
+                </span>
+              </div>
+              <div class="asset-desc">5 FIIs diversificados · dividendos mensais isentos</div>
+            </td>
+            <td class="td-right" style="font-weight:600;">R$ 20.000</td>
+            <td class="td-right">10–13%</td>
+            <td class="td-right"><span class="badge badge-isento">Div. isento</span></td>
+            <td class="td-right net-return">10–13%</td>
+            <td class="td-right" style="color:var(--text-secondary);">D+2</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="asset-name">
+                <span class="tip-wrap tip-flip">Tesouro IPCA+ 2045
+                  <span class="tip-box">
+                    <strong>O que é?</strong> Título público federal que paga inflação (IPCA) + 7,2% ao ano fixo. Vencimento em 2045 — perfeito para aposentadoria.<br><br>
+                    <strong>Por que esse vencimento longo?</strong> Como seu horizonte é 10+ anos, faz total sentido carregar até o vencimento. Você trava uma <em>taxa real altíssima</em> (>7%) por 19 anos.<br><br>
+                    <strong>Atenção:</strong> oscila de preço no curto prazo (marcação a mercado), mas isso é irrelevante se você não vender antes. No vencimento, recebe a taxa contratada independente do que aconteceu.<br><br>
+                    <strong>IR:</strong> 15% sobre o lucro só no vencimento ou venda.
+                  </span>
+                </span>
+              </div>
+              <div class="asset-desc">IPCA + 7,2% a.a. · vencimento 2045 · governo federal</div>
+            </td>
+            <td class="td-right" style="font-weight:600;">R$ 15.000</td>
+            <td class="td-right">11,9%*</td>
+            <td class="td-right"><span class="badge badge-ir">IR 15%</span></td>
+            <td class="td-right net-return">10,1%</td>
+            <td class="td-right" style="color:var(--text-secondary);">D+1</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="asset-name">
+                <span class="tip-wrap tip-flip">CRI Tokenizado — IPCA+ 7,5%
+                  <span class="tip-box">
+                    <strong>O que é?</strong> Certificado de Recebíveis Imobiliários registrado em blockchain (você já conhece pela sua exposição em tokenizados). Mesmo benefício fiscal do CRI tradicional.<br><br>
+                    <strong>Por que 10% da carteira?</strong> Por já fazer parte do seu universo e oferecer rentabilidade líquida superior à NTN-B + 100% isenção de IR.<br><br>
+                    <strong>Atenção ao risco:</strong> sem FGC. Por isso 10% é o teto recomendado — concentre em emissores com lastro pulverizado e devedores AAA/AA.<br><br>
+                    <strong>Plataformas:</strong> Zuvia, Liqi (reguladas pela CVM).
+                  </span>
+                </span>
+              </div>
+              <div class="asset-desc">Plataforma regulada CVM · lastro imobiliário · isento IR</div>
+            </td>
+            <td class="td-right" style="font-weight:600;">R$ 10.000</td>
+            <td class="td-right">12,2%</td>
+            <td class="td-right"><span class="badge badge-isento">Isento IR</span></td>
+            <td class="td-right net-return">12,2%</td>
+            <td class="td-right" style="color:var(--text-secondary);">D+0*</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="asset-name">
+                <span class="tip-wrap tip-flip">VGBL — Previdência sucessória
+                  <span class="tip-box">
+                    <strong>O que é?</strong> Vida Gerador de Benefício Livre. Plano de previdência privada que <em>não permite dedução fiscal</em> (você usa simplificada), mas tem outras vantagens importantes.<br><br>
+                    <strong>Por que entra na carteira?</strong> Como você é empresário, esse produto serve para <em>3 objetivos estratégicos</em>:<br><br>
+                    1. <strong>Sucessão sem inventário</strong>: o capital vai direto para beneficiários, sem custo de inventário (que pode chegar a 10%).<br>
+                    2. <strong>Tributação regressiva</strong>: após 10 anos, apenas 10% de IR sobre o lucro.<br>
+                    3. <strong>Sem come-cotas</strong>: o dinheiro cresce sem antecipações de IR.<br><br>
+                    <strong>Fundo escolhido:</strong> VGBL multimercado moderado (XP, Icatu ou BTG).
+                  </span>
+                </span>
+              </div>
+              <div class="asset-desc">Sucessão + tributação 10% após 10 anos · sem come-cotas</div>
+            </td>
+            <td class="td-right" style="font-weight:600;">R$ 5.000</td>
+            <td class="td-right">12–14%</td>
+            <td class="td-right"><span class="badge badge-ir">IR 10% (10a+)</span></td>
+            <td class="td-right net-return">10,8–12,6%</td>
+            <td class="td-right" style="color:var(--text-secondary);">Longo prazo</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="asset-name">
+                <span class="tip-wrap tip-flip">Cripto — BTC + ETH
+                  <span class="tip-box">
+                    <strong>O que é?</strong> Bitcoin (BTC) e Ethereum (ETH) — as duas maiores criptomoedas. Você já investe nessa classe.<br><br>
+                    <strong>Por que apenas 5%?</strong> Cripto é uma classe satélite — boa para diversificação e potencial assimétrico, mas volátil demais para ser core. <em>5% é o teto recomendado</em> para perfil moderado-arrojado.<br><br>
+                    <strong>Estratégia:</strong> 60% BTC + 40% ETH. Aporte fracionado (DCA — Dollar Cost Averaging) mensal.<br><br>
+                    <strong>IR:</strong> 15% sobre lucro acima de R$ 35k/mês em vendas. Abaixo disso, isento.<br><br>
+                    <strong>Onde:</strong> Mercado Bitcoin, Foxbit, Binance.
+                  </span>
+                </span>
+              </div>
+              <div class="asset-desc">60% BTC + 40% ETH · alocação satélite · DCA mensal</div>
+            </td>
+            <td class="td-right" style="font-weight:600;">R$ 5.000</td>
+            <td class="td-right">15–25%*</td>
+            <td class="td-right"><span class="badge badge-rv">IR 15%</span></td>
+            <td class="td-right net-return">13–22%</td>
+            <td class="td-right" style="color:var(--text-secondary);">D+0</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-footer">* Rentabilidade nominal estimada com IPCA projetado em 4,7% a.a. Para cripto, alta volatilidade — retorno esperado em janela de 10+ anos. Rentabilidade passada não garante resultados futuros.</div>
+    </div>
+  </div>
+
+  <!-- DISTRIBUIÇÃO DO APORTE MENSAL -->
+  <div class="section">
+    <div class="section-title">Como dividir os R$ 10.000 mensais</div>
+    <div class="table-wrap" style="overflow:visible;">
+      <table class="asset-table">
+        <thead>
+          <tr>
+            <th style="width:50%">Destino</th>
+            <th>%</th>
+            <th>Valor mensal</th>
+            <th>Valor anual</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>ETFs Brasil (BOVA11 + SMAL11)</td><td class="td-right">25%</td><td class="td-right" style="font-weight:600;">R$ 2.500</td><td class="td-right" style="color:var(--text-secondary);">R$ 30.000</td></tr>
+          <tr><td>ETFs Internacionais (IVVB11 + WRLD11)</td><td class="td-right">20%</td><td class="td-right" style="font-weight:600;">R$ 2.000</td><td class="td-right" style="color:var(--text-secondary);">R$ 24.000</td></tr>
+          <tr><td>Fundos Imobiliários (5 FIIs)</td><td class="td-right">20%</td><td class="td-right" style="font-weight:600;">R$ 2.000</td><td class="td-right" style="color:var(--text-secondary);">R$ 24.000</td></tr>
+          <tr><td>Tesouro IPCA+ 2045</td><td class="td-right">15%</td><td class="td-right" style="font-weight:600;">R$ 1.500</td><td class="td-right" style="color:var(--text-secondary);">R$ 18.000</td></tr>
+          <tr><td>CRI Tokenizado (Zuvia)</td><td class="td-right">10%</td><td class="td-right" style="font-weight:600;">R$ 1.000</td><td class="td-right" style="color:var(--text-secondary);">R$ 12.000</td></tr>
+          <tr><td>VGBL</td><td class="td-right">5%</td><td class="td-right" style="font-weight:600;">R$ 500</td><td class="td-right" style="color:var(--text-secondary);">R$ 6.000</td></tr>
+          <tr><td>Cripto (BTC + ETH)</td><td class="td-right">5%</td><td class="td-right" style="font-weight:600;">R$ 500</td><td class="td-right" style="color:var(--text-secondary);">R$ 6.000</td></tr>
+        </tbody>
+      </table>
+      <div class="table-footer">Sugestão: configure PIX agendado no dia 5 de cada mês para automatizar 100% do aporte.</div>
+    </div>
+  </div>
+
+  <!-- PROJEÇÃO PATRIMONIAL -->
+  <div class="section">
+    <div class="section-title">Projeção do seu patrimônio</div>
+    <div class="income-card">
+      <div class="income-title">Com R$ 100.000 inicial + R$ 10.000/mês a ~11% a.a. líquido</div>
+      <div class="income-grid">
+        <div class="income-item">
+          <div class="income-label">Em 5 anos</div>
+          <div class="income-value">~R$ 945k</div>
+          <div class="income-period">acumulado</div>
+        </div>
+        <div class="income-item">
+          <div class="income-label">Em 10 anos</div>
+          <div class="income-value">~R$ 2,3M</div>
+          <div class="income-period">acumulado</div>
+        </div>
+        <div class="income-item">
+          <div class="income-label">Em 15 anos</div>
+          <div class="income-value">~R$ 4,1M</div>
+          <div class="income-period">acumulado</div>
+        </div>
+        <div class="income-item">
+          <div class="income-label">Em 20 anos</div>
+          <div class="income-value">~R$ 7,0M</div>
+          <div class="income-period">acumulado</div>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--text-secondary);line-height:1.7;margin-bottom:18px;">
+      <strong style="color:var(--accent);">A mágica do longo prazo:</strong> dos R$ 4,1 milhões em 15 anos, apenas <strong>R$ 1,9M</strong> são seus aportes (R$ 100k inicial + R$ 1,8M acumulado). Os outros <strong>R$ 2,2M são juros compostos</strong> — mais que o que você aportou. Em 20 anos a desproporção fica ainda maior: dos R$ 7M, mais de R$ 4,5M são juros. <span class="hi">É exatamente isso que faz a aposentadoria segura.</span>
+    </p>
+
+    <div class="renda-card">
+      <div class="income-title" style="margin-bottom: 14px;">🎯 Renda mensal projetada na aposentadoria</div>
+      <div class="renda-grid">
+        <div class="renda-item">
+          <div class="renda-label">Em 15 anos (60 anos)</div>
+          <div class="renda-value">~R$ 33k/mês</div>
+          <div class="renda-sub">retirando ~10% a.a. do patrimônio</div>
+        </div>
+        <div class="renda-item">
+          <div class="renda-label">Em 20 anos (65 anos)</div>
+          <div class="renda-value">~R$ 58k/mês</div>
+          <div class="renda-sub">se mantiver aportes 5 anos extras</div>
+        </div>
+        <div class="renda-item">
+          <div class="renda-label">Renda perpétua</div>
+          <div class="renda-value">~R$ 20k/mês</div>
+          <div class="renda-sub">apenas dividendos, sem mexer no patrimônio</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASSO A PASSO -->
+  <div class="section">
+    <div class="section-title">Seu plano de execução</div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-title-c">Abertura de conta na XP</div>
+        <div class="step-text">Para o seu patrimônio (>R$ 100k), <strong>XP Investimentos</strong> é a melhor escolha — acesso a assessor dedicado, FIIs e ETFs em mesma conta, plataforma robusta. Abertura em ~15min.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-title-c">Alocação inicial em 3 dias úteis</div>
+        <div class="step-text">Distribua os R$ 100.000 nos 7 ativos conforme tabela. Para ETFs e FIIs, compre em <strong>2 ou 3 levas</strong> (não tudo no mesmo dia) — reduz risco de timing ruim.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-title-c">PIX agendado dia 5</div>
+        <div class="step-text">Configure PIX agendado de <strong>R$ 10.000/mês</strong> da conta da empresa para a XP. Aplica conforme tabela de distribuição. Demora <strong>30 min/mês</strong>.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ONDE COMPRAR -->
+  <div class="section">
+    <div class="section-title">Onde comprar cada ativo</div>
+    <div class="buy-grid">
+      <div class="buy-row">
+        <div class="buy-product"><span class="buy-product-dot" style="background:#33FFCC"></span><span class="buy-product-name">ETFs Brasil</span></div>
+        <div class="buy-platforms"><span class="buy-plat buy-plat-1">XP Investimentos</span><span class="buy-plat buy-plat-2">BTG Pactual</span><span class="buy-plat buy-plat-3">Clear</span></div>
+      </div>
+      <div class="buy-row">
+        <div class="buy-product"><span class="buy-product-dot" style="background:#60A5FA"></span><span class="buy-product-name">ETFs Internacionais</span></div>
+        <div class="buy-platforms"><span class="buy-plat buy-plat-1">XP Investimentos</span><span class="buy-plat buy-plat-2">BTG Pactual</span><span class="buy-plat buy-plat-3">Avenue</span></div>
+      </div>
+      <div class="buy-row">
+        <div class="buy-product"><span class="buy-product-dot" style="background:#FF66AA"></span><span class="buy-product-name">Fundos Imobiliários</span></div>
+        <div class="buy-platforms"><span class="buy-plat buy-plat-1">XP Investimentos</span><span class="buy-plat buy-plat-2">BTG Pactual</span><span class="buy-plat buy-plat-3">Rico</span></div>
+      </div>
+      <div class="buy-row">
+        <div class="buy-product"><span class="buy-product-dot" style="background:#AAFF57"></span><span class="buy-product-name">Tesouro IPCA+ 2045</span></div>
+        <div class="buy-platforms"><span class="buy-plat buy-plat-1">XP Investimentos</span><span class="buy-plat buy-plat-2">BTG Pactual</span><span class="buy-plat buy-plat-3">Nubank</span></div>
+      </div>
+      <div class="buy-row">
+        <div class="buy-product"><span class="buy-product-dot" style="background:#CC66FF"></span><span class="buy-product-name">CRI Tokenizado</span></div>
+        <div class="buy-platforms"><span class="buy-plat buy-plat-1">Zuvia</span><span class="buy-plat buy-plat-2">Liqi</span></div>
+      </div>
+      <div class="buy-row">
+        <div class="buy-product"><span class="buy-product-dot" style="background:#FF8833"></span><span class="buy-product-name">VGBL</span></div>
+        <div class="buy-platforms"><span class="buy-plat buy-plat-1">XP Investimentos</span><span class="buy-plat buy-plat-2">Icatu Seguros</span><span class="buy-plat buy-plat-3">BTG Pactual</span></div>
+      </div>
+      <div class="buy-row">
+        <div class="buy-product"><span class="buy-product-dot" style="background:#FFCC22"></span><span class="buy-product-name">Cripto (BTC + ETH)</span></div>
+        <div class="buy-platforms"><span class="buy-plat buy-plat-1">Mercado Bitcoin</span><span class="buy-plat buy-plat-2">Foxbit</span><span class="buy-plat buy-plat-3">Binance</span></div>
+      </div>
+    </div>
+    <div class="buy-note">
+      <strong>Estratégia recomendada para o seu patrimônio:</strong> centralize 80% na <strong>XP Investimentos</strong> — você terá assessor dedicado, taxas reduzidas e plataforma única para ETFs, FIIs, Tesouro e VGBL. Mantenha contas separadas apenas para <strong>Zuvia</strong> (CRI tokenizado) e <strong>Mercado Bitcoin</strong> (cripto). Para empresários, vale considerar conta PJ na XP Empresas para separar fluxo pessoal/empresarial.
+    </div>
+  </div>
+
+  <!-- ESTRATÉGIA DE LONGO PRAZO -->
+  <div class="section">
+    <div class="section-title">Estratégia de longo prazo · 3 fases até a aposentadoria</div>
+    <div class="exp-wrap">
+
+      <div class="exp-item" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <span class="exp-arrow">▶</span>
+          <div style="display:flex;align-items:center;gap:24px;flex:1;">
+            <div style="min-width:160px;font-size:13px;font-weight:600;color:var(--text-primary);">Fase 1 · Acúmulo (anos 1–10)</div>
+            <div style="font-size:12px;color:var(--text-secondary);">Foco em <strong>multiplicar patrimônio</strong> com renda variável e exposição global</div>
+          </div>
+        </div>
+        <div class="exp-body">
+          <p>Nesta fase, sua tolerância a risco é maior (10+ anos de horizonte para recuperação) e sua capacidade de aporte está no auge. <span class="hi">A carteira atual é otimizada para essa fase</span> — 65% em renda variável (ETFs + FIIs + Cripto) capturando crescimento de longo prazo.</p>
+          <p style="margin-top:8px;">Patrimônio esperado no fim da fase: <strong>~R$ 2,3 milhões</strong>. Aportes acumulados: R$ 1,2M · juros compostos: R$ 1,0M (já equivalente aos aportes).</p>
+        </div>
+      </div>
+
+      <div class="exp-item" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <span class="exp-arrow">▶</span>
+          <div style="display:flex;align-items:center;gap:24px;flex:1;">
+            <div style="min-width:160px;font-size:13px;font-weight:600;color:var(--text-primary);">Fase 2 · Consolidação (anos 11–15)</div>
+            <div style="font-size:12px;color:var(--text-secondary);">Migração gradual para ativos geradores de <strong>renda mensal</strong></div>
+          </div>
+        </div>
+        <div class="exp-body">
+          <p>A partir do ano 10, começamos a <em>reduzir gradualmente a exposição em renda variável</em> (cripto, small caps) e <span class="hi">aumentar FIIs, debêntures incentivadas e renda fixa indexada à inflação</span>. O objetivo é estabilizar o patrimônio enquanto ele continua crescendo.</p>
+          <p style="margin-top:8px;">Patrimônio esperado: <strong>~R$ 4,1 milhões</strong>. Renda passiva mensal (dividendos + cupons): já em torno de <strong>R$ 20.000/mês</strong>.</p>
+        </div>
+      </div>
+
+      <div class="exp-item" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <span class="exp-arrow">▶</span>
+          <div style="display:flex;align-items:center;gap:24px;flex:1;">
+            <div style="min-width:160px;font-size:13px;font-weight:600;color:var(--text-primary);">Fase 3 · Usufruto (anos 16+)</div>
+            <div style="font-size:12px;color:var(--text-secondary);">Carteira focada em <strong>preservação + renda</strong> · vida da renda</div>
+          </div>
+        </div>
+        <div class="exp-body">
+          <p>Aqui você está vivendo da renda. A carteira fica <span class="hi">60% em ativos de renda</span> (FIIs, debêntures, NTN-B, dividendos), <span class="hi">25% em renda fixa de proteção</span> e <span class="hi">15% em renda variável</span> (manutenção patrimonial e proteção contra inflação).</p>
+          <p style="margin-top:8px;">Estratégia de retirada: <strong>3-4% a.a. do patrimônio</strong> (regra clássica de aposentadoria) garante que o capital dure a vida toda e ainda cresça acima da inflação. Com R$ 4,1M = retirada de <strong>R$ 13–16k/mês perpétua</strong>, mais os dividendos = <strong>R$ 33k/mês de renda total</strong>.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TRIGGERS -->
+  <div class="section">
+    <div class="section-title">Quando revisitar a estratégia</div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">→</div>
+        <div class="step-title-c">Patrimônio chegar a R$ 500.000</div>
+        <div class="step-text">Considerar diversificar em <strong>fundos multimercado e debêntures incentivadas</strong> · revisar peso em cripto.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">→</div>
+        <div class="step-title-c">Faltar 5 anos para aposentadoria</div>
+        <div class="step-text">Iniciar migração da Fase 2 → Fase 3 · reduzir RV gradualmente · aumentar FIIs e NTN-B.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">→</div>
+        <div class="step-title-c">Selic cair abaixo de 10%</div>
+        <div class="step-text">Acelerar travamento em <strong>IPCA+ longo</strong> · aumentar exposição internacional · revisar FIIs de papel.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REFERÊNCIAS -->
+  <div class="section">
+    <div class="section-title">Para aprofundar</div>
+    <div class="refs-grid">
+      <div class="ref-card">
+        <div class="ref-source">Tesouro Direto</div>
+        <div class="ref-link"><a href="https://www.tesourodireto.com.br" target="_blank">tesourodireto.com.br</a></div>
+        <div class="ref-desc">Simulador oficial · IPCA+ 2045</div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-source">B3 — FIIs e ETFs</div>
+        <div class="ref-link"><a href="https://www.b3.com.br" target="_blank">b3.com.br</a></div>
+        <div class="ref-desc">Dados de mercado · fichas dos fundos</div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-source">Banco Central</div>
+        <div class="ref-link"><a href="https://www.bcb.gov.br" target="_blank">bcb.gov.br</a></div>
+        <div class="ref-desc">Selic, IPCA, câmbio em tempo real</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div>
+    <div class="footer-brand">Julia Braga Martins</div>
+    <div>Economista · Consultora Financeira · w.juliabm@gmail.com</div>
+  </div>
+  <div class="footer-right">
+    <div>Relatório confidencial, destinado exclusivamente a Diego Martins.</div>
+    <div>Não constitui oferta de valores mobiliários. Rentabilidade passada não garante resultados futuros.</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+function toggleExp(el) { el.classList.toggle('open'); }
+
+Chart.defaults.color = '#AAAAAA';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+
+new Chart(document.getElementById('pieChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['ETFs Brasil','ETFs Internacionais','Fundos Imobiliários','Tesouro IPCA+ Longo','CRI Tokenizado','VGBL','Cripto'],
+    datasets: [{
+      data: [25, 20, 20, 15, 10, 5, 5],
+      backgroundColor: ['#33FFCC','#60A5FA','#FF66AA','#AAFF57','#CC66FF','#FF8833','#FFCC22'],
+      borderWidth: 0
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '65%',
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed + '%' }}
+    }
+  }
+});
+
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Cripto (BTC+ETH)','CRI Tokenizado','VGBL Multimercado','ETFs Brasil','ETFs Internacionais','FIIs','Tesouro IPCA+ 2045'],
+    datasets: [{
+      data: [17.5, 12.2, 11.7, 11.5, 10.5, 11.5, 10.1],
+      backgroundColor: ['#FFCC22','#CC66FF','#FF8833','#33FFCC','#60A5FA','#FF66AA','#AAFF57'],
+      borderRadius: 4, borderSkipped: false
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.parsed.x.toFixed(1) + '% a.a. estimado líquido' }}
+    },
+    scales: {
+      x: { min: 8, max: 20, ticks: { callback: v => v + '%', font: { size: 11 }, color: '#CCCCCC' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+      y: { ticks: { font: { size: 11 }, color: '#CCCCCC' }, grid: { display: false } }
+    }
+  }
+});
+</script>
+</body>
+</html>
